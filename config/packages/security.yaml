@@ -17,9 +17,13 @@ security:
             lazy: true
             provider: app_user_provider
             form_login:
+                enable_csrf: true
                 login_path: app_login
                 check_path: app_login
-                enable_csrf: true
+                username_parameter: email
+                password_parameter: password
+            remember_me:
+                remember_me_parameter: remember_me
             logout:
                 path: app_logout
                 # where to redirect after logout
