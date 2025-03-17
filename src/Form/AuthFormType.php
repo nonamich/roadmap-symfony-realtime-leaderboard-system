@@ -22,6 +22,17 @@ class AuthFormType extends AbstractType
     {
     }
 
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'csrf_protection' => true,
+            'csrf_field_name' => '_csrf_token',
+            'csrf_token_id'   => 'authenticate',
+        ]);
+
+        $resolver->setDefined('type');
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options = []): void
     {
         $isRegister = $options['type'] === 'register';
@@ -29,11 +40,14 @@ class AuthFormType extends AbstractType
 
         $builder->setAction($action);
         $builder->add('email', EmailType::class, [
+            'label' => 'Email',
             'constraints' => [
                 new Email(),
             ]
         ]);
-        $builder->add('password', PasswordType::class, [
+        $builder->add('plainPassword', PasswordType::class, [
+            'label' => 'Password',
+            'mapped' => false,
             'constraints' => [
                 new NotBlank(),
                 new Length([
@@ -45,6 +59,8 @@ class AuthFormType extends AbstractType
 
         if ($isRegister) {
         $builder->add('agree_terms', CheckboxType::class, [
+                'label' => 'I accept the <a href="#">Terms and Conditions</a>',
+                'label_html' => true,
                 'mapped' => false,
                 'constraints' => [
                     new IsTrue(),
@@ -52,6 +68,8 @@ class AuthFormType extends AbstractType
             ]);
         } else {
             $builder->add('remember_me', CheckboxType::class, [
+                'label' => 'Remember Me',
+                'required' => false,
                 'mapped' => false,
             ]);
         }
@@ -61,15 +79,8 @@ class AuthFormType extends AbstractType
         ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public function getBlockPrefix()
     {
-        $resolver->setDefaults([
-            'data_class' => User::class,
-            'csrf_protection' => true,
-            'csrf_field_name' => '_csrf_token',
-            'csrf_token_id'   => 'authenticate',
-        ]);
-
-        $resolver->setDefined('type');
+        return '';
     }
 }

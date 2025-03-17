@@ -17,11 +17,12 @@ security:
             lazy: true
             provider: app_user_provider
             form_login:
+                use_forward: true
                 enable_csrf: true
                 login_path: app_login
                 check_path: app_login
                 username_parameter: email
-                password_parameter: password
+                password_parameter: plainPassword
             remember_me:
                 remember_me_parameter: remember_me
             logout:

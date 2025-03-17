@@ -8,6 +8,8 @@ use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
@@ -19,18 +21,28 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class AuthController extends AbstractController
 {
+    public function __construct(private EmailVerifier $emailVerifier, private AuthenticationUtils $authenticationUtils)
+    {
+    }
+
     #[Route(path: '/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(Request $request): Response
     {
         $form = $this->createForm(AuthFormType::class, null, [
             'type' => 'login'
         ]);
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
+        $form->handleRequest($request);
+        $error = $this->authenticationUtils->getLastAuthenticationError();
 
-        return $this->render('security/login.html.twig', [
-            'last_username' => $lastUsername,
-            'error' => $error,
+        if (!$form->isSubmitted()) {
+            $form->get('email')->setData($this->authenticationUtils->getLastUsername());
+        }
+
+        if ($error) {
+            $form->addError(new FormError($error->getMessage()));
+        }
+
+        return $this->render('pages/login.html.twig', [
             'form' => $form,
         ]);
     }
@@ -40,12 +52,9 @@ class AuthController extends AbstractController
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
-    public function __construct(private EmailVerifier $emailVerifier)
-    {
-    }
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $entityManager): Response
+    public function register(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $entityManager, Security $security): Response
     {
         $user = new User();
         $form = $this->createForm(AuthFormType::class, $user, [
@@ -54,10 +63,9 @@ class AuthController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $password = $form->get('password')->getData();
+            $plainPassword = $form->get('plainPassword')->getData();
 
-            $user->setPassword($hasher->hashPassword($user, $password));
-
+            $user->setPassword($hasher->hashPassword($user, $plainPassword));
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -69,10 +77,10 @@ class AuthController extends AbstractController
                     ->htmlTemplate('email/confirmation_email.html.twig')
             );
 
-            return $this->redirectToRoute('app_home');
+            return $security->login($user, 'form_login', 'main');
         }
 
-        return $this->render('registration/register.html.twig', [
+        return $this->render('pages/register.html.twig', [
             'form' => $form,
         ]);
     }
