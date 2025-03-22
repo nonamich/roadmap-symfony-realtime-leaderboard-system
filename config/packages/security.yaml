@@ -9,12 +9,6 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
-        in_memory_admin:
-            memory:
-                users:
-                    superadmin:
-                        password: '{noop}supersecurepassword'
-                        roles: ['ROLE_SUPER_ADMIN']
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -34,8 +28,6 @@ security:
             logout:
                 path: app_logout
 
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/profile, roles: ROLE_USER }
