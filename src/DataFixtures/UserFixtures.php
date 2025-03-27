@@ -15,7 +15,9 @@ class UserFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        if ($manager->getRepository(User::class)->count([]) === 0) {
+        $userCount = $manager->getRepository(User::class)->count();
+
+        if ($userCount === 0) {
             $user = new User();
             $adminEmail = $this->params->get('admin_email');
             $adminPassword = $this->params->get('admin_password');
