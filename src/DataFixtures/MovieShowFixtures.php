@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Hall;
 use App\Entity\Movie;
 use App\Entity\MovieShow;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -13,25 +14,37 @@ class MovieShowFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
-        $movies = $manager->getRepository(Movie::class)->findBy(
-            criteria: [],
-            offset: 1,
-        );
+        $movies = $manager->getRepository(Movie::class)->findAll();
+        $halls = $manager->getRepository(Hall::class)->findAll();
 
-        foreach ($movies as $movie) {
-            $show = new MovieShow();
-            $startTime = $faker->dateTimeBetween('+1 week', '+3 week');
-            $endTime = clone $startTime;
+        foreach ($halls as $hall) {
+            $count_shows = $faker->numberBetween(1, 4);
 
-            $endTime->modify("+{$movie->getDurationInMins()} minute");
+            for ($i = 0; $i < $count_shows; $i++) {
+                $show = new MovieShow();
+                /** @var Movie $movie */
+                $movie = $faker->randomElement($movies);
+                $startTime = $faker->dateTimeBetween('+0 week', '+3 week');
 
-            $show->setPrice($faker->numberBetween(400, 800));
-            $show->setStartTime($startTime);
-            $show->setEndTime($startTime);
+                if ($i >= 1) {
+                    $startTime->modify("+$i day");
+                }
+
+                $endTime = clone $startTime;
+
+                $endTime->modify("+{$movie->getDurationInMins()} minute");
+
+                $show->setPrice($faker->numberBetween(400, 800));
+                $show->setStartTime($startTime);
+                $show->setEndTime($startTime);
+                $show->setHall($hall);
+                $show->setMovie($movie);
+
+                $manager->persist($show);
+            }
         }
 
 
-        $manager->persist($show);
         $manager->flush();
     }
 }

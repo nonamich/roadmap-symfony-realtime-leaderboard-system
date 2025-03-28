@@ -35,7 +35,7 @@ class MovieFixtures extends Fixture
     {
         $faker = $this->createFaker();
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $movie = new Movie();
             $poster = $this->getPoster();
 

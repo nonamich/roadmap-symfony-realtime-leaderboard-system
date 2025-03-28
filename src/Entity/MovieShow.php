@@ -27,6 +27,14 @@ class MovieShow
     #[ORM\Column]
     private ?int $price = null;
 
+    #[ORM\ManyToOne(inversedBy: 'shows')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Hall $hall = null;
+
+    #[ORM\ManyToOne(inversedBy: 'shows')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Movie $movie = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -83,5 +91,29 @@ class MovieShow
     #[ORM\PrePersist]
     public function updatedTimestamps() {
         $this->setCreatedOn(new \DateTimeImmutable('now'));
+    }
+
+    public function getHall(): ?Hall
+    {
+        return $this->hall;
+    }
+
+    public function setHall(?Hall $hall): static
+    {
+        $this->hall = $hall;
+
+        return $this;
+    }
+
+    public function getMovie(): ?Movie
+    {
+        return $this->movie;
+    }
+
+    public function setMovie(?Movie $movie): static
+    {
+        $this->movie = $movie;
+
+        return $this;
     }
 }

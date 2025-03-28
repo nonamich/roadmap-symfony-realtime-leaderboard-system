@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MovieRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -37,6 +39,17 @@ class Movie
 
     #[ORM\Column]
     private ?string $poster = null;
+
+    /**
+     * @var Collection<int, MovieShow>
+     */
+    #[ORM\OneToMany(targetEntity: MovieShow::class, mappedBy: 'movie', orphanRemoval: true)]
+    private Collection $shows;
+
+    public function __construct()
+    {
+        $this->shows = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -135,6 +148,36 @@ class Movie
     public function setPoster(string $poster): static
     {
         $this->poster = $poster;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MovieShow>
+     */
+    public function getShows(): Collection
+    {
+        return $this->shows;
+    }
+
+    public function addShow(MovieShow $show): static
+    {
+        if (!$this->shows->contains($show)) {
+            $this->shows->add($show);
+            $show->setMovie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShow(MovieShow $show): static
+    {
+        if ($this->shows->removeElement($show)) {
+            // set the owning side to null (unless already changed)
+            if ($show->getMovie() === $this) {
+                $show->setMovie(null);
+            }
+        }
 
         return $this;
     }
