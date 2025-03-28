@@ -14,18 +14,19 @@ class HallAndSeatFixtures extends Fixture
     {
         $faker = Factory::create();
 
-        for ($index=0; $index < 4; $index++) {
+        for ($index = 0; $index < 4; $index++) {
             $hall = new Hall();
 
             $hall->setName($faker->unique()->name());
 
-            for ($row=0; $row < 5; $row++) {
-                for ($col=0; $col < 5; $col++) {
+            for ($row = 1; $row <= 5; $row++) {
+                for ($col = 1; $col <= 5; $col++) {
                     $seat = new HallSeat();
 
                     $seat->setCol($col);
                     $seat->setRow($row);
                     $hall->addSeat($seat);
+
                     $manager->persist($seat);
                 }
             }

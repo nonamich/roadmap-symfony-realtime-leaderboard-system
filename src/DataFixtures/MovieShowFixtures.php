@@ -26,17 +26,15 @@ class MovieShowFixtures extends Fixture
                 $movie = $faker->randomElement($movies);
                 $startTime = $faker->dateTimeBetween('+0 week', '+3 week');
 
-                if ($i >= 1) {
-                    $startTime->modify("+$i day");
-                }
+                $startTime->modify("+$i day");
 
                 $endTime = clone $startTime;
 
                 $endTime->modify("+{$movie->getDurationInMins()} minute");
 
-                $show->setPrice($faker->numberBetween(400, 800));
+                $show->setPriceInCents($faker->numberBetween(400, 800));
                 $show->setStartTime($startTime);
-                $show->setEndTime($startTime);
+                $show->setEndTime($endTime);
                 $show->setHall($hall);
                 $show->setMovie($movie);
 

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250327195228 extends AbstractMigration
+final class Version20250328212016 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -50,7 +50,7 @@ final class Version20250327195228 extends AbstractMigration
           start_time TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
           end_time TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
           created_on TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-          price INT NOT NULL,
+          price_in_cents INT NOT NULL,
           PRIMARY KEY(id)
         )');
         $this->addSql('CREATE INDEX IDX_C168F80C52AFCFD6 ON movie_show (hall_id)');

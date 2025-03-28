@@ -25,7 +25,7 @@ class MovieShow
     private ?\DateTimeImmutable $createdOn = null;
 
     #[ORM\Column]
-    private ?int $price = null;
+    private ?int $priceInCents = null;
 
     #[ORM\ManyToOne(inversedBy: 'shows')]
     #[ORM\JoinColumn(nullable: false)]
@@ -76,14 +76,14 @@ class MovieShow
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getPriceInCents(): ?int
     {
-        return $this->price;
+        return $this->priceInCents;
     }
 
-    public function setPrice(int $price): static
+    public function setPriceInCents(int $priceInCents): static
     {
-        $this->price = $price;
+        $this->priceInCents = $priceInCents;
 
         return $this;
     }
