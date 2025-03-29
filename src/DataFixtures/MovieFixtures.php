@@ -41,7 +41,7 @@ class MovieFixtures extends Fixture
 
             $movie->setTitle($faker->sentence(3));
             $movie->setDescription($faker->text());
-            $movie->setDurationInMins($faker->numberBetween(80, 120));
+            $movie->setDurationInMins($faker->numberBetween(50, 120));
             $movie->setLanguage($faker->languageCode());
             $movie->setCountry($faker->countryCode());
             $movie->setGenre($faker->randomElement(['Action', 'Comedy', 'Drama', 'Sci-Fi']));

@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\ShowRepository;
+use App\Repository\MovieShowRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ShowRepository::class)]
+#[ORM\Entity(repositoryClass: MovieShowRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class MovieShow
 {

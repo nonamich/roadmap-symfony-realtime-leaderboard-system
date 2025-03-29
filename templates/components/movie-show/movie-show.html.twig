@@ -1,0 +1,5 @@
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+  {% for show in shows %}
+    {% include('components/movie-show/movie-show-item.html.twig') with { show } %}
+  {% endfor %}
+</div>
