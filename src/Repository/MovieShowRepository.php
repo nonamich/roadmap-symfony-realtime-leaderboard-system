@@ -16,7 +16,10 @@ class MovieShowRepository extends ServiceEntityRepository
         parent::__construct($registry, MovieShow::class);
     }
 
-    public function findAllWithMovie()
+    /**
+     * @return array<int, MovieShow>
+     */
+    public function findAllRelations(): array
     {
         return $this->createQueryBuilder('s')
             ->leftJoin('s.movie', 'm')
@@ -25,5 +28,18 @@ class MovieShowRepository extends ServiceEntityRepository
             ->addSelect('h')
             ->getQuery()
             ->getResult();
+    }
+
+    public function findOneRelations(int $id): ?MovieShow
+    {
+        return $this->createQueryBuilder('s')
+            ->leftJoin('s.movie', 'm')
+            ->leftJoin('s.hall', 'h')
+            ->addSelect('m')
+            ->addSelect('h')
+            ->andWhere('s.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

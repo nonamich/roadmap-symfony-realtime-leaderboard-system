@@ -13,7 +13,7 @@ final class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(MovieShowRepository $movieShowRepository): Response
     {
-        $shows = $movieShowRepository->findAllWithMovie();
+        $shows = $movieShowRepository->findAllRelations();
 
         return $this->render('pages/home.html.twig', [
             'shows' => $shows,
