@@ -34,17 +34,33 @@ class MovieFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $faker = $this->createFaker();
+        $allowedGenres = [
+            'Action',
+            'Adventure',
+            'Animation',
+            'Comedy',
+            'Romance',
+            'Crime',
+            'Horror',
+            'Documentary',
+            'Drama',
+            'Sci-fi',
+            'Western',
+            'Fantasy',
+            'Thriller',
+        ];
 
         for ($i = 0; $i < 10; $i++) {
-            $movie = new Movie();
+            $genres = $faker->randomElements($allowedGenres, null);
             $poster = $this->getPoster();
+            $movie = new Movie();
 
             $movie->setTitle($faker->sentence(3));
             $movie->setDescription($faker->text());
             $movie->setDurationInMins($faker->numberBetween(50, 120));
             $movie->setLanguage($faker->languageCode());
             $movie->setCountry($faker->countryCode());
-            $movie->setGenre($faker->randomElement(['Action', 'Comedy', 'Drama', 'Sci-Fi']));
+            $movie->setGenres($genres);
             $movie->setReleaseDate($faker->dateTime());
             $movie->setPoster($poster);
 

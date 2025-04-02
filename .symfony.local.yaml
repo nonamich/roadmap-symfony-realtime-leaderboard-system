@@ -2,4 +2,4 @@ workers:
     tailwind:
         cmd: ['symfony', 'console', 'tailwind:build', '--watch']
     messenger_consume_all:
-        cmd: ['php', 'bin/console', 'messenger:consume', '--all', '--no-debug']
+        cmd: ['symfony', 'console', 'messenger:consume', '--all', '--no-debug']

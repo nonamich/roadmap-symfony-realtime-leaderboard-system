@@ -3,9 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Hall;
-use App\Entity\HallSeat;
+use App\Entity\Seat;
 use App\Entity\Movie;
-use App\Entity\MovieShow;
+use App\Entity\Showtime;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -39,8 +39,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('CRUD');
         yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
         yield MenuItem::linkToCrud('Halls', 'fas fa-house', Hall::class);
-        yield MenuItem::linkToCrud('Seats', 'fas fa-chair', HallSeat::class);
-        yield MenuItem::linkToCrud('Shows', 'fas fa-eye', MovieShow::class);
+        yield MenuItem::linkToCrud('Seats', 'fas fa-chair', Seat::class);
+        yield MenuItem::linkToCrud('Shows', 'fas fa-eye', Showtime::class);
         yield MenuItem::linkToCrud('Movies', 'fas fa-film', Movie::class);
     }
 }

@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\MovieShow;
+use App\Entity\Showtime;
+use App\Form\ReservationFormType;
+use App\Repository\SeatRepository;
+use App\Repository\ShowtimeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,12 +15,16 @@ use Symfony\Component\Routing\Attribute\Route;
 final class MovieShowController extends AbstractController
 {
     #[Route('/{id}', name: 'app_movie_show')]
-    public function show(int $id, EntityManagerInterface $entityManager): Response
+    public function show(int $id, ShowtimeRepository $repository): Response
     {
-        $movieShow = $entityManager->getRepository(MovieShow::class)->findOneRelations($id);
+        $showtime = $repository->findOneRelations($id);
+        $form = $this->createForm(ReservationFormType::class, options: [
+            'showtime' => $showtime,
+        ]);
 
         return $this->render('pages/open-movie-show.html.twig', [
-            'show' => $movieShow,
+            'showtime' => $showtime,
+            'form' => $form,
         ]);
     }
 }

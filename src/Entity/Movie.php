@@ -35,21 +35,24 @@ class Movie
     #[ORM\Column(length: 2)]
     private ?string $country = null;
 
-    #[ORM\Column(length: 20)]
-    private ?string $genre = null;
+    /**
+     * @var list<string>
+     */
+    #[ORM\Column]
+    private array $genres = [];
 
     #[ORM\Column]
     private ?string $poster = null;
 
     /**
-     * @var Collection<int, MovieShow>
+     * @var Collection<int, Showtime>
      */
-    #[ORM\OneToMany(targetEntity: MovieShow::class, mappedBy: 'movie', orphanRemoval: true)]
-    private Collection $shows;
+    #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'movie', orphanRemoval: true)]
+    private Collection $showtimes;
 
     public function __construct()
     {
-        $this->shows = new ArrayCollection();
+        $this->showtimes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -129,14 +132,20 @@ class Movie
         return $this;
     }
 
-    public function getGenre(): ?string
+    /**
+     * @return list<string>
+     */
+    public function getGenres(): ?array
     {
-        return $this->genre;
+        return array_unique($this->genres);
     }
 
-    public function setGenre(string $genre): static
+    /**
+     * @param list<string> $genres
+     */
+    public function setGenres(array $genres): static
     {
-        $this->genre = $genre;
+        $this->genres = $genres;
 
         return $this;
     }
@@ -154,29 +163,28 @@ class Movie
     }
 
     /**
-     * @return Collection<int, MovieShow>
+     * @return Collection<int, Showtime>
      */
-    public function getShows(): Collection
+    public function getShowtimes(): Collection
     {
-        return $this->shows;
+        return $this->showtimes;
     }
 
-    public function addShow(MovieShow $show): static
+    public function addShow(Showtime $showtime): static
     {
-        if (!$this->shows->contains($show)) {
-            $this->shows->add($show);
-            $show->setMovie($this);
+        if (!$this->showtimes->contains($showtime)) {
+            $this->showtimes->add($showtime);
+            $showtime->setMovie($this);
         }
 
         return $this;
     }
 
-    public function removeShow(MovieShow $show): static
+    public function removeShow(Showtime $showtime): static
     {
-        if ($this->shows->removeElement($show)) {
-            // set the owning side to null (unless already changed)
-            if ($show->getMovie() === $this) {
-                $show->setMovie(null);
+        if ($this->showtimes->removeElement($showtime)) {
+            if ($showtime->getMovie() === $this) {
+                $showtime->setMovie(null);
             }
         }
 

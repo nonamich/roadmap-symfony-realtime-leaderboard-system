@@ -19,16 +19,17 @@ class Hall
     private ?string $name = null;
 
     /**
-     * @var Collection<int, HallSeat>
+     * @var Collection<int, Seat>
      */
-    #[ORM\OneToMany(targetEntity: HallSeat::class, mappedBy: 'hall', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Seat::class, mappedBy: 'hall', orphanRemoval: true)]
+    #[ORM\OrderBy(['row' => 'ASC', 'col' => 'ASC'])]
     private Collection $seats;
 
     /**
-     * @var Collection<int, MovieShow>
+     * @var Collection<int, Showtime>
      */
-    #[ORM\OneToMany(targetEntity: MovieShow::class, mappedBy: 'hall', orphanRemoval: true)]
-    private Collection $shows;
+    #[ORM\OneToMany(targetEntity: Showtime::class, mappedBy: 'hall', orphanRemoval: true)]
+    private Collection $showtimes;
 
     public function __construct()
     {
@@ -54,14 +55,14 @@ class Hall
     }
 
     /**
-     * @return Collection<int, HallSeat>
+     * @return Collection<int, Seat>
      */
     public function getSeats(): Collection
     {
         return $this->seats;
     }
 
-    public function addSeat(HallSeat $seat): static
+    public function addSeat(Seat $seat): static
     {
         if (!$this->seats->contains($seat)) {
             $this->seats->add($seat);
@@ -71,7 +72,7 @@ class Hall
         return $this;
     }
 
-    public function removeSeat(HallSeat $seat): static
+    public function removeSeat(Seat $seat): static
     {
         if ($this->seats->removeElement($seat)) {
             // set the owning side to null (unless already changed)
@@ -84,29 +85,28 @@ class Hall
     }
 
     /**
-     * @return Collection<int, MovieShow>
+     * @return Collection<int, Showtime>
      */
-    public function getShows(): Collection
+    public function getShowtimes(): Collection
     {
-        return $this->shows;
+        return $this->showtimes;
     }
 
-    public function addShow(MovieShow $show): static
+    public function addShow(Showtime $showtime): static
     {
-        if (!$this->shows->contains($show)) {
-            $this->shows->add($show);
-            $show->setHall($this);
+        if (!$this->showtimes->contains($showtime)) {
+            $this->showtimes->add($showtime);
+            $showtime->setHall($this);
         }
 
         return $this;
     }
 
-    public function removeShow(MovieShow $show): static
+    public function removeShow(Showtime $showtime): static
     {
-        if ($this->shows->removeElement($show)) {
-            // set the owning side to null (unless already changed)
-            if ($show->getHall() === $this) {
-                $show->setHall(null);
+        if ($this->showtimes->removeElement($showtime)) {
+            if ($showtime->getHall() === $this) {
+                $showtime->setHall(null);
             }
         }
 

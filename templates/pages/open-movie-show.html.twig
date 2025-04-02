@@ -1,77 +1,187 @@
 {% extends 'base.html.twig' %}
-{% set duration = show.startTime.diff(show.endTime) %}
-{% set startsThrough = date().diff(show.startTime) %}
-{% block body %}
-<section class="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
-    <div class="max-w-screen-xl px-4 mx-auto 2xl:px-0">
-      <div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
-        <div class="shrink-0 max-w-md lg:max-w-lg mx-auto">
-          <img class="w-full hidden dark:block" src="{{ absolute_url( asset(show.movie.getPoster()) ) }}" />
-        </div>
-        <div class="mt-6 sm:mt-8 lg:mt-0">
-          <h1
-            class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
-          >
-            {{ show.movie.title }}
-          </h1>
-          <hr class="my-4 border-gray-200 dark:border-gray-800" />
-          <p class="mb-3 text-gray-500 dark:text-gray-400">
-            {{ show.movie.description }}
-          </p>
-          <hr class="my-4 border-gray-200 dark:border-gray-800" />
-          <dl class="max-w-md text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
-              <div class="flex flex-col py-3">
-                  <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Hall</dt>
-                  <dd class="text-lg font-semibold">#{{show.hall.id}} {{show.hall.name}}</dd>
-              </div>
-              <div class="flex flex-col pt-3">
-                  <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Start</dt>
-                  <dd class="text-lg font-semibold">{{show.startTime|date()}}</dd>
-              </div>
-              <div class="flex flex-col pt-3">
-                  <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">End</dt>
-                  <dd class="text-lg font-semibold">{{show.endTime|date()}}</dd>
-              </div>
-              <div class="flex flex-col pt-3">
-                  <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Duration</dt>
-                  <dd class="text-lg font-semibold">{{ duration.format('%h hours %i mins') }}</dd>
-              </div>
-              <div class="flex flex-col pt-3">
-                  <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Starts through</dt>
-                  <dd class="text-lg font-semibold">{{ startsThrough.format('%d days %h hours %i mins') }}</dd>
-              </div>
-          </dl>
-          <hr class="my-4 border-gray-200 dark:border-gray-800" />
-          <div class="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
-            <a
-              href="#"
-              title=""
-              class="text-white mt-4 sm:mt-0 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800 flex items-center justify-center"
-              role="button"
-            >
-              <svg
-                class="w-5 h-5 -ms-2 me-2"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
-                />
-              </svg>
+{% set duration = showtime.startTime.diff(showtime.endTime) %}
+{% set startsThrough = date().diff(showtime.startTime) %}
 
-              Add to cart
-            </a>
+{% block body %}
+  <main class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="flex flex-col md:flex-row gap-6">
+          <div class="flex-shrink-0">
+            <img src="{{ absolute_url(asset(showtime.movie.getPoster())) }}" alt="Movie Poster" class="w-full md:w-48 h-auto rounded-lg shadow-lg" />
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold mb-2">{{ showtime.movie.title }}</h1>
+            <div class="flex gap-2 mb-3 flex-wrap">
+              {% for genre in showtime.movie.getGenres() %}
+                <span class="px-2 py-1 bg-blue-900 rounded text-xs">{{ genre }}</span>
+              {% endfor %}
+            </div>
+            <hr class="my-4 border-gray-200 dark:border-gray-800" />
+            <div class="mb-2">
+              <h3 class="font-semibold mb-1">Hall</h3><div class="flex gap-2 flex-wrap">
+                <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">#{{ showtime.hall.id }}</span>
+              </div>
+            </div>
+            <div class="mb-2">
+              <h3 class="font-semibold mb-1">Showtime</h3><div class="flex gap-2 flex-wrap">
+                <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">{{ showtime.startTime|date }}</span>
+              </div>
+            </div>
+            <div class="mb-2">
+              <h3 class="font-semibold mb-1">Duration</h3><div class="flex gap-2 flex-wrap">
+                <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">{{ duration|date('%h hours %i mins') }}</span>
+              </div>
+            </div>
+            <div class="mb-2">
+              <h3 class="font-semibold mb-1">Starts Through</h3><div class="flex gap-2 flex-wrap">
+                <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">{{ startsThrough|date('%d days %h hours %i mins') }}</span>
+              </div>
+            </div>
+            <p class="text-gray-400 text-sm">{{ showtime.movie.description }}</p>
           </div>
         </div>
+        {{ form(form) }}
+        {# <div data-orientation="horizontal" role="none" class="shrink-0 h-[1px] w-full my-6 bg-gray-700"></div>
+        <div class="mb-8">
+          <h2 class="text-xl font-semibold mb-6">Select Your Seats</h2><div class="bg-gray-800 p-6 rounded-lg">
+            <div class="flex flex-col items-center">
+              <div class="w-full max-w-3xl mx-auto">
+                <div class="h-8 bg-gradient-to-b from-blue-400 to-transparent opacity-50 rounded-t-full"></div>
+                <div class="h-2 bg-blue-400 w-full"></div>
+                <p class="text-center text-gray-400 mt-2 text-sm">SCREEN</p>
+              </div>
+              <div class="my-8 w-full max-w-4xl">
+                <div class="flex flex-col items-center gap-2">
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">A</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat A1 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat A2 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A5 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A6 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A7 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A8 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A9 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat A15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">A</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">B</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat B5 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B6 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B7 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B8 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B9 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat B15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">B</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">C</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C5 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C6 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat C7 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat C8 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C9 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat C15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">C</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">D</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D5 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D6 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D7 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D8 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D9 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat D10 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat D15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">D</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">E</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat E4 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat E5 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E6 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E7 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E8 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E9 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat E15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">E</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">F</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F5 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat F6 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat F7 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat F8 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat F9 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat F12 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat F15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">F</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">G</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G5 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat G6 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat G7 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat G8 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat G9 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat G15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">G</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">H</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H5 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat H6 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat H7 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat H8 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-amber-700 hover:bg-amber-600" aria-label="Seat H9 VIP "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat H15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">H</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">I</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I5 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I6 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I7 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I8 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat I9 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I14 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat I15 standard "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">I</div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-6 text-center text-gray-400 font-medium">J</div>
+                    <div class="flex gap-1">
+                      <button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J1 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J2 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J3 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J4 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J5 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J6 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J7 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J8 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J9 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J10 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J11 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J12 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 hover:bg-gray-600" aria-label="Seat J13 standard "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat J14 unavailable "></button><button class="w-6 h-6 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-600 cursor-not-allowed" disabled="" aria-label="Seat J15 unavailable "></button>
+                    </div>
+                    <div class="w-6 text-center text-gray-400 font-medium">J</div>
+                  </div>
+                  <div class="flex mt-4 gap-1">
+                    <div class="w-6"></div>
+                    <div class="flex gap-1">
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">1</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">2</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">3</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">4</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">5</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">6</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">7</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">8</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">9</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">10</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">11</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">12</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">13</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">14</div>
+                      <div class="w-6 h-6 flex items-center justify-center text-xs text-gray-400">15</div>
+                    </div>
+                    <div class="w-6"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex gap-6 mt-6 justify-center flex-wrap">
+                <div class="flex items-center gap-2">
+                  <div class="w-4 h-4 bg-gray-700 rounded"></div><span class="text-sm text-gray-300">Available</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-4 h-4 bg-green-500 rounded"></div><span class="text-sm text-gray-300">Selected</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-4 h-4 bg-amber-700 rounded"></div><span class="text-sm text-gray-300">VIP</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-4 h-4 bg-gray-600 rounded"></div><span class="text-sm text-gray-300">Unavailable</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> #}
+      </div>
+      <div>
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <h2 class="text-xl font-semibold mb-4">Booking Summary</h2><div class="mb-4">
+            <h3 class="text-gray-400 mb-2">{{ showtime.movie.title }}</h3><p class="text-sm text-gray-400">{{ showtime.startTime|date }}</p>
+            <p class="text-sm text-gray-400">Screen 3</p>
+          </div>
+          <div data-orientation="horizontal" role="none" class="shrink-0 h-[1px] w-full my-4 bg-gray-700"></div>
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between">
+              <span class="text-gray-300">Selected Seats</span><span class="font-medium">None</span>
+            </div>
+          </div>
+          <div data-orientation="horizontal" role="none" class="shrink-0 h-[1px] w-full my-4 bg-gray-700"></div>
+          <div class="flex justify-between font-bold">
+            <span>Total</span><span>$0.00</span>
+          </div>
+        </div><button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full mt-4" disabled="">Complete Booking</button>
       </div>
     </div>
-  </section>
+  </main>
 {% endblock %}

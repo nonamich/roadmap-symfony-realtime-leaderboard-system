@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\MovieShow;
+use App\Entity\Showtime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<MovieShow>
+ * @extends ServiceEntityRepository<Showtime>
  */
-class MovieShowRepository extends ServiceEntityRepository
+class ShowtimeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, MovieShow::class);
+        parent::__construct($registry, Showtime::class);
     }
 
     /**
-     * @return array<int, MovieShow>
+     * @return array<int, Showtime>
      */
     public function findAllRelations(): array
     {
@@ -30,7 +30,7 @@ class MovieShowRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findOneRelations(int $id): ?MovieShow
+    public function findOneRelations(int $id): ?Showtime
     {
         return $this->createQueryBuilder('s')
             ->leftJoin('s.movie', 'm')

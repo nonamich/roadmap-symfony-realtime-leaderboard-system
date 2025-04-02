@@ -2,25 +2,28 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\MovieShow;
+use App\Entity\Seat;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
-class MovieShowCrudController extends AbstractCrudController
+class SeatCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return MovieShow::class;
+        return Seat::class;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters->add(EntityFilter::new('hall'));
     }
 
     public function configureFields(string $pageName): iterable
     {
         $fields = parent::configureFields($pageName);
 
-        $fields[] = AssociationField::new('movie')->autocomplete();
         $fields[] = AssociationField::new('hall')->autocomplete();
 
         return $fields;
