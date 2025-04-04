@@ -1,5 +1,5 @@
 {% set duration = showtime.startTime.diff(showtime.endTime) %}
-{% set url = path('app_movie_show', { id: showtime.id }) %}
+{% set url = path('app_showtime', { id: showtime.id }) %}
 
 <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
   <a href="{{ url }}"><img class="rounded-t-lg" src="{{ absolute_url(asset(showtime.movie.getPoster())) }}" alt="" /></a>

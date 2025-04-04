@@ -42,4 +42,19 @@ class ShowtimeRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findOneMovieAndSeats(int $id): ?Showtime
+    {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.movie', 'm')
+            ->innerJoin('s.showtimeSeats', 'ss')
+            ->innerJoin('ss.seat', 'seat')
+            ->addSelect('m')
+            ->addSelect('ss')
+            ->addSelect('seat')
+            ->andWhere('s.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

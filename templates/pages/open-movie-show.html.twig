@@ -41,7 +41,12 @@
             <p class="text-gray-400 text-sm">{{ showtime.movie.description }}</p>
           </div>
         </div>
-        {{ form(form) }}
+        <div data-orientation="horizontal" role="none" class="shrink-0 h-[1px] w-full my-6 bg-gray-700"></div>
+        {% if is_granted('ROLE_USER') %}
+          {{ form(form) }}
+        {% else %}
+            <p>Please, <a class="text-blue-600 dark:text-blue-500 hover:underline" href="{{ path('app_login') }}">login</a>, to fill form.</p>
+        {% endif %}
         {# <div data-orientation="horizontal" role="none" class="shrink-0 h-[1px] w-full my-6 bg-gray-700"></div>
         <div class="mb-8">
           <h2 class="text-xl font-semibold mb-6">Select Your Seats</h2><div class="bg-gray-800 p-6 rounded-lg">

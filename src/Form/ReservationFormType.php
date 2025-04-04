@@ -3,10 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Seat;
-use App\Form\Type\CinemaLayoutType;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\ShowtimeSeat;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -22,21 +19,20 @@ class ReservationFormType extends AbstractType
          * @var Showtime
          */
         $showtime = $options['showtime'];
-        $seats = $showtime->getHall()->getSeats();
-        $reservations = $showtime->getReservations();
-        $reservationsSeats = $reservations->map(
-            function ($reservation) {
-                return $reservation->getReservedSeats();
-            }
-        );
+        $showtimeSeats = $showtime->getShowtimeSeats();
+        // $reservations = $showtime->getReservations();
+        // $reservationsSeats = $reservations->map(
+        //     function ($reservation) {
+        //         return $reservation->getReservedSeats();
+        //     }
+        // );
 
         $builder->add('seats', ChoiceType::class, [
             'expanded' => true,
             'multiple' => true,
-            'choices' => $seats,
-            'choice_value' => fn(Seat $seat) => $seat->getId(),
-            'choice_label' => fn(Seat $seat) => "{$seat->getRow()}:{$seat->getCol()}",
-            'group_by' => fn(Seat $seat) => $seat->getRow(),
+            'choices' => $showtimeSeats,
+            'choice_value' => fn(ShowtimeSeat $showtimeSeat) => $showtimeSeat->getId(),
+            'choice_label' => fn(ShowtimeSeat $showtimeSeat) => "{$showtimeSeat->getSeat()->getRow()}:{$showtimeSeat->getSeat()->getCol()}",
         ]);
 
         $builder->add('submit', SubmitType::class);

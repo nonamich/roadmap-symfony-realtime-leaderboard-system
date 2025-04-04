@@ -154,7 +154,7 @@ class Showtime
     /**
      * @return Collection<int, ShowtimeSeat>
      */
-    public function getShowSeats(): Collection
+    public function getShowtimeSeats(): Collection
     {
         return $this->showtimeSeats;
     }
