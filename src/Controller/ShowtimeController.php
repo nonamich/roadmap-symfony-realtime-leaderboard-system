@@ -2,16 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\Showtime;
 use App\Form\ReservationFormType;
-use App\Repository\SeatRepository;
 use App\Repository\ShowtimeRepository;
 use App\Repository\ShowtimeSeatRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\ShowtimeSeat;
 
 #[Route('/showtime')]
 final class ShowtimeController extends AbstractController
@@ -37,7 +35,10 @@ final class ShowtimeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $seats = $data['seats'];
+            /**
+             * @var ShowtimeSeat[]
+             */
+            $seats = $data['showtimeSeats'];
 
             $seats;
         }

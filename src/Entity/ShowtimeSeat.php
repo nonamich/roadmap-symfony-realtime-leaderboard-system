@@ -24,6 +24,9 @@ class ShowtimeSeat
     #[ORM\JoinColumn(nullable: false)]
     private ?Showtime $showtime = null;
 
+    #[ORM\OneToOne(inversedBy: 'showtimeSeat', cascade: ['persist', 'remove'])]
+    private ?ReservedSeat $reservedSeat = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +64,18 @@ class ShowtimeSeat
     public function setShowtime(?Showtime $showtime): static
     {
         $this->showtime = $showtime;
+
+        return $this;
+    }
+
+    public function getReservedSeat(): ?ReservedSeat
+    {
+        return $this->reservedSeat;
+    }
+
+    public function setReservedSeat(?ReservedSeat $reservedSeat): static
+    {
+        $this->reservedSeat = $reservedSeat;
 
         return $this;
     }

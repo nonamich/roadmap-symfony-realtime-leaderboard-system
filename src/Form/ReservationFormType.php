@@ -27,7 +27,7 @@ class ReservationFormType extends AbstractType
         //     }
         // );
 
-        $builder->add('seats', ChoiceType::class, [
+        $builder->add('showtimeSeats', ChoiceType::class, [
             'expanded' => true,
             'multiple' => true,
             'choices' => $showtimeSeats,
