@@ -32,7 +32,7 @@ class ReservationFormType extends AbstractType
             'multiple' => true,
             'choices' => $showtimeSeats,
             'choice_value' => fn(ShowtimeSeat $showtimeSeat) => $showtimeSeat->getId(),
-            'choice_label' => fn(ShowtimeSeat $showtimeSeat) => "{$showtimeSeat->getSeat()->getRow()}:{$showtimeSeat->getSeat()->getCol()}",
+            'choice_label' => fn(ShowtimeSeat $showtimeSeat) => "{$showtimeSeat->getId()}",
         ]);
 
         $builder->add('submit', SubmitType::class);

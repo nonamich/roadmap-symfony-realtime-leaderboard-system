@@ -18,7 +18,8 @@ class ReservedSeat
     #[ORM\JoinColumn(nullable: false)]
     private ?Reservation $reservation = null;
 
-    #[ORM\OneToOne(mappedBy: 'reservedSeat', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'reversedSeat')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?ShowtimeSeat $showtimeSeat = null;
 
     public function getId(): ?int
@@ -47,12 +48,12 @@ class ReservedSeat
     {
         // unset the owning side of the relation if necessary
         if ($showtimeSeat === null && $this->showtimeSeat !== null) {
-            $this->showtimeSeat->setReservedSeat(null);
+            $this->showtimeSeat->setReversedSeat(null);
         }
 
         // set the owning side of the relation if necessary
-        if ($showtimeSeat !== null && $showtimeSeat->getReservedSeat() !== $this) {
-            $showtimeSeat->setReservedSeat($this);
+        if ($showtimeSeat !== null && $showtimeSeat->getReversedSeat() !== $this) {
+            $showtimeSeat->setReversedSeat($this);
         }
 
         $this->showtimeSeat = $showtimeSeat;

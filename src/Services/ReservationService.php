@@ -22,13 +22,13 @@ class ReservationService
     }
 
     /**
-     * @param \App\Entity\ShowtimeSeat[] $showtimeSeats
+     * @param ShowtimeSeat[] $showtimeSeats
      */
     public function isSeatsFree(array $showtimeSeats) {
         // $showtimeSeats[0]->
 
-        // return array_map(function($seat) {
-
-        // }, $showtimeSeats);
+        return array_map(function(ShowtimeSeat $showtimeSeat) {
+            return $showtimeSeat->getReversedSeat();
+        }, $showtimeSeats);
     }
 }

@@ -13,6 +13,7 @@ class HallAndSeatFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
+        $letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
         for ($index = 0; $index < 4; $index++) {
             $hall = new Hall();
@@ -24,7 +25,6 @@ class HallAndSeatFixtures extends Fixture
             for ($row = 1; $row <= $rowsCount; $row++) {
                 for ($col = 1; $col <= $colsCount; $col++) {
                     $seat = new Seat();
-                    $letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
                     $seat->setCol($col);
                     $seat->setRow($letters[$row - 1]);
