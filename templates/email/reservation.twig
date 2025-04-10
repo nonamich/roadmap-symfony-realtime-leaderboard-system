@@ -1,0 +1,20 @@
+<h1>Hi, {{user.email}}!</h1>
+<p>Details</p>
+<dl>
+  <dt>Reservation</dt>
+  <dd>#{{ reservation.uuid }}</dd>
+
+  <dt>Movie</dt>
+  <dd>{{ reservation.showtime.movie.title }}</dd>
+
+  <dt>Start Date</dt>
+  <dd>{{ reservation.showtime.startDate }}</dd>
+</dl>
+<h2>{{ reservation.reservedSeats|length }} Seats</h1>
+<ul>
+    {% for reservedSeat in reservedSeats %}
+        <li>
+            {{ reservedSeat.showtimeSeat.seat.row }}:{{ reservedSeat.showtimeSeat.seat.col }}
+        </li>
+    {% endfor %}
+</ul>

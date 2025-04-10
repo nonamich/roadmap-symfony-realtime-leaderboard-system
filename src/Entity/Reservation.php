@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_CUSTOMER_AND_SHOWTIME', fields: ['customer', 'showtime'])]
@@ -31,6 +32,10 @@ class Reservation
     #[ORM\OneToMany(targetEntity: ReservedSeat::class, mappedBy: 'reservation')]
     private Collection $reservedSeats;
 
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue]
+    private ?Uuid $uuid = null;
+
     public function __construct()
     {
         $this->reservedSeats = new ArrayCollection();
@@ -53,12 +58,12 @@ class Reservation
         return $this;
     }
 
-    public function getShow(): ?Showtime
+    public function getShowtime(): ?Showtime
     {
         return $this->showtime;
     }
 
-    public function setShow(?Showtime $showtime): static
+    public function setShowtime(?Showtime $showtime): static
     {
         $this->showtime = $showtime;
 
@@ -92,5 +97,10 @@ class Reservation
         }
 
         return $this;
+    }
+
+    public function getUuid(): ?Uuid
+    {
+        return $this->uuid;
     }
 }

@@ -1,34 +1,112 @@
 <?php
 namespace App\Services;
 
+use App\Entity\Reservation;
+use App\Entity\ReservedSeat;
 use App\Entity\Showtime;
 use App\Entity\ShowtimeSeat;
+use App\Entity\User;
+use App\Exception\ShowtimePassedException;
+use App\Repository\ReservationRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 
 class ReservationService
 {
+    public function __construct(
+        private Security $security,
+        private EntityManagerInterface $entityManager,
+        private ReservationRepository $reservationRepository,
+        private MailerInterface $mailer,
+    ) {
+    }
+
     /**
      * @param ShowtimeSeat[] $showtimeSeats
      */
-    public function reserve(Showtime $showtime, array $showtimeSeats) {
+    public function reserve(Showtime $showtime, array $showtimeSeats)
+    {
+        $this->isValidReservationOrThrow($showtime, $showtimeSeats);
 
+        $reservation = $this->createReservation($showtime, $showtimeSeats);
+
+        $this->sendEmailNotification($reservation);
+    }
+    /**
+     * @param ShowtimeSeat[] $showtimeSeats
+     */
+    public function createReservation(Showtime $showtime, array $showtimeSeats)
+    {
+        $reservation = $this->reservationRepository->findOneByCurrentUserOrCreate($showtime);
+
+        foreach ($showtimeSeats as $showtimeSeat) {
+            $reservedSeat = new ReservedSeat();
+
+            $reservedSeat->setShowtimeSeat($showtimeSeat);
+            $reservation->addReservedSeat($reservedSeat);
+            $this->entityManager->persist($reservedSeat);
+        }
+
+        $this->entityManager->persist($reservation);
+        $this->entityManager->flush();
+
+        return $reservation;
     }
 
-    public function isShowtimeOnTime(Showtime $showtime) {
+    public function isShowtimeOnTimeOrThrow(Showtime $showtime)
+    {
+        if ($this->isShowtimeOnTime($showtime)) {
+            return true;
+        }
+
+        throw new ShowtimePassedException();
+    }
+
+    public function isShowtimeOnTime(Showtime $showtime)
+    {
         return new \DateTime() < $showtime->getStartTime();
     }
 
-    public function isShowtimeValid(Showtime $showtime) {
-        return $this->isShowtimeOnTime($showtime);
+    /**
+     * @param ShowtimeSeat[] $showtimeSeats
+     */
+    public function isValidReservationOrThrow(Showtime $showtime, array $showtimeSeats)
+    {
+        $this->isSeatsFreeOrThrow($showtimeSeats);
+        $this->isShowtimeOnTimeOrThrow($showtime);
     }
 
     /**
      * @param ShowtimeSeat[] $showtimeSeats
      */
-    public function isSeatsFree(array $showtimeSeats) {
-        // $showtimeSeats[0]->
+    public function isSeatsFreeOrThrow(array $showtimeSeats)
+    {
+        if ($this->isSeatsFree($showtimeSeats)) {
+            return true;
+        }
 
-        return array_map(function(ShowtimeSeat $showtimeSeat) {
-            return $showtimeSeat->getReversedSeat();
-        }, $showtimeSeats);
+        throw new ShowtimePassedException();
+    }
+
+    /**
+     * @param ShowtimeSeat[] $showtimeSeats
+     */
+    public function isSeatsFree(array $showtimeSeats)
+    {
+        return array_all($showtimeSeats, function (ShowtimeSeat $showtimeSeat) {
+            return !$showtimeSeat->getReservedSeat();
+        });
+    }
+
+    private function sendEmailNotification(Reservation $reservation) {
+        $templatedEmail = new TemplatedEmail();
+
+        $templatedEmail
+            ->to($reservation->getCustomer()->getEmail())
+            ->subject("Reservation {$reservation->getUuid()}")
+            ->htmlTemplate('email/reservation');
     }
 }

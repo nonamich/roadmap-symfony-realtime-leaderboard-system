@@ -25,7 +25,7 @@ class ShowtimeSeat
     private ?Showtime $showtime = null;
 
     #[ORM\OneToOne(mappedBy: 'showtimeSeat', cascade: ['persist', 'remove'])]
-    private ?ReservedSeat $reversedSeat = null;
+    private ?ReservedSeat $reservedSeat = null;
 
     public function getId(): ?int
     {
@@ -68,14 +68,19 @@ class ShowtimeSeat
         return $this;
     }
 
-    public function getReversedSeat(): ?ReservedSeat
+    public function getReservedSeat(): ?ReservedSeat
     {
-        return $this->reversedSeat;
+        return $this->reservedSeat;
     }
 
-    public function setReversedSeat(?ReservedSeat $reversedSeat): static
+    public function setReservedSeat(ReservedSeat $reservedSeat): static
     {
-        $this->reversedSeat = $reversedSeat;
+        // set the owning side of the relation if necessary
+        if ($reservedSeat->getShowtimeSeat() !== $this) {
+            $reservedSeat->setShowtimeSeat($this);
+        }
+
+        $this->reservedSeat = $reservedSeat;
 
         return $this;
     }

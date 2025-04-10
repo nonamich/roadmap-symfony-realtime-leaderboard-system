@@ -3,41 +3,45 @@
 namespace App\Repository;
 
 use App\Entity\Reservation;
+use App\Entity\Showtime;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * @extends ServiceEntityRepository<Reservation>
  */
 class ReservationRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private Security $security
+    ) {
         parent::__construct($registry, Reservation::class);
     }
 
-//    /**
-//     * @return Reservation[] Returns an array of Reservation objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('r.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findOneByCurrentUserOrCreate(Showtime $showtime): Reservation
+    {
+        $user = $this->security->getUser();
 
-//    public function findOneBySomeField($value): ?Reservation
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        if (!($user instanceof User)) {
+            throw new AccessDeniedHttpException();
+        }
+
+        $reservation = $this->findOneBy([
+            'customer' => $user,
+            'showtime' => $showtime,
+        ]);
+
+        if (!$reservation) {
+            $reservation = new Reservation();
+
+            $reservation->setCustomer($user);
+            $reservation->setShowtime($showtime);
+        }
+
+        return $reservation;
+    }
 }

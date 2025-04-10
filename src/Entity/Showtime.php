@@ -134,7 +134,7 @@ class Showtime
     {
         if (!$this->reservations->contains($reservation)) {
             $this->reservations->add($reservation);
-            $reservation->setShow($this);
+            $reservation->setShowtime($this);
         }
 
         return $this;
@@ -143,8 +143,8 @@ class Showtime
     public function removeReservation(Reservation $reservation): static
     {
         if ($this->reservations->removeElement($reservation)) {
-            if ($reservation->getShow() === $this) {
-                $reservation->setShow(null);
+            if ($reservation->getShowtime() === $this) {
+                $reservation->setShowtime(null);
             }
         }
 

@@ -1,4 +1,4 @@
-name: roadmap-symfony-movie-reservation-system
+name: movie-reservation-system
 type: symfony
 docroot: public
 php_version: "8.4"

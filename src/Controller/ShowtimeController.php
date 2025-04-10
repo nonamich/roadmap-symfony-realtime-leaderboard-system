@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Form\ReservationFormType;
 use App\Repository\ShowtimeRepository;
 use App\Repository\ShowtimeSeatRepository;
+use App\Services\ReservationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,14 +15,19 @@ use App\Entity\ShowtimeSeat;
 #[Route('/showtime')]
 final class ShowtimeController extends AbstractController
 {
+
+    public function __construct(
+        private ShowtimeRepository $showtimeRepository,
+        private ReservationService $reservationService
+    ) {
+    }
+
     #[Route('/{id}', name: 'app_showtime')]
     public function show(
         int $id,
         Request $request,
-        ShowtimeSeatRepository $showtimeSeatRepository,
-        ShowtimeRepository $showtimeRepository
     ): Response {
-        $showtime = $showtimeRepository->findOneMovieAndSeats($id);
+        $showtime = $this->showtimeRepository->findOneMovieAndSeats($id);
 
         if (!$showtime) {
             throw $this->createNotFoundException();
@@ -33,17 +39,17 @@ final class ShowtimeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
+            $this->denyAccessUnlessGranted('ROLE_USER');
 
             /**
              * @var ShowtimeSeat[]
              */
-            $seats = $data['showtimeSeats'];
+            $showtimeSeats = $form->get('showtimeSeats')->getData();
 
-            $seats;
+            $this->reservationService->reserve($showtime, $showtimeSeats);
         }
 
-        return $this->render('pages/open-movie-show.html.twig', [
+        return $this->render('pages/showtime.html.twig', [
             'showtime' => $showtime,
             'form' => $form,
         ]);

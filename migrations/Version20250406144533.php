@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250406115225 extends AbstractMigration
+final class Version20250406144533 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,6 +20,12 @@ final class Version20250406115225 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE TABLE hall (
+          id INT AUTO_INCREMENT NOT NULL,
+          name VARCHAR(255) NOT NULL,
+          UNIQUE INDEX UNIQ_1B8FA83F5E237E06 (name),
+          PRIMARY KEY(id)
+        ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE movie (
           id INT AUTO_INCREMENT NOT NULL,
           title VARCHAR(255) NOT NULL,
@@ -137,8 +143,6 @@ final class Version20250406115225 extends AbstractMigration
           showtime_seat
         ADD
           CONSTRAINT FK_87459BC428BE1523 FOREIGN KEY (showtime_id) REFERENCES showtime (id)');
-        $this->addSql('DROP INDEX id ON hall');
-        $this->addSql('ALTER TABLE hall CHANGE id id INT AUTO_INCREMENT NOT NULL');
     }
 
     public function down(Schema $schema): void
@@ -153,6 +157,7 @@ final class Version20250406115225 extends AbstractMigration
         $this->addSql('ALTER TABLE showtime DROP FOREIGN KEY FK_3248D918F93B6FC');
         $this->addSql('ALTER TABLE showtime_seat DROP FOREIGN KEY FK_87459BC4C1DAFE35');
         $this->addSql('ALTER TABLE showtime_seat DROP FOREIGN KEY FK_87459BC428BE1523');
+        $this->addSql('DROP TABLE hall');
         $this->addSql('DROP TABLE movie');
         $this->addSql('DROP TABLE reservation');
         $this->addSql('DROP TABLE reserved_seat');
@@ -161,7 +166,5 @@ final class Version20250406115225 extends AbstractMigration
         $this->addSql('DROP TABLE showtime_seat');
         $this->addSql('DROP TABLE `user`');
         $this->addSql('DROP TABLE messenger_messages');
-        $this->addSql('ALTER TABLE hall CHANGE id id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL');
-        $this->addSql('CREATE UNIQUE INDEX id ON hall (id)');
     }
 }
