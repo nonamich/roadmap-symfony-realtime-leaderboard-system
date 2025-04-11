@@ -6,16 +6,16 @@ use App\Repository\ReservationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_CUSTOMER_AND_SHOWTIME', fields: ['customer', 'showtime'])]
+#[ORM\HasLifecycleCallbacks]
 class Reservation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'reservations')]
@@ -32,9 +32,8 @@ class Reservation
     #[ORM\OneToMany(targetEntity: ReservedSeat::class, mappedBy: 'reservation')]
     private Collection $reservedSeats;
 
-    #[ORM\Column(type: 'uuid', unique: true)]
-    #[ORM\GeneratedValue]
-    private ?Uuid $uuid = null;
+    #[ORM\Column(type: 'uuid')]
+    private ?Uuid $ticketCode = null;
 
     public function __construct()
     {
@@ -99,8 +98,23 @@ class Reservation
         return $this;
     }
 
-    public function getUuid(): ?Uuid
+    public function getTicketCode(): ?Uuid
     {
-        return $this->uuid;
+        return $this->ticketCode;
+    }
+
+    public function setTicketCode(Uuid $ticketCode): static
+    {
+        $this->ticketCode = $ticketCode;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function generateTicketCode(): void
+    {
+        if ($this->ticketCode === null) {
+            $this->ticketCode = Uuid::v7();
+        }
     }
 }

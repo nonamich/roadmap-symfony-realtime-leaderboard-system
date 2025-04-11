@@ -26,7 +26,7 @@ class AuthFormType extends AbstractType
         $resolver->setDefaults([
             'csrf_protection' => true,
             'csrf_field_name' => '_csrf_token',
-            'csrf_token_id'   => 'authenticate',
+            'csrf_token_id' => 'authenticate',
         ]);
 
         $resolver->setDefined('type');
@@ -57,7 +57,7 @@ class AuthFormType extends AbstractType
         ]);
 
         if ($isRegister) {
-        $builder->add('agree_terms', CheckboxType::class, [
+            $builder->add('agree_terms', CheckboxType::class, [
                 'label' => 'I accept the <a href="#">Terms and Conditions</a>',
                 'label_html' => true,
                 'mapped' => false,

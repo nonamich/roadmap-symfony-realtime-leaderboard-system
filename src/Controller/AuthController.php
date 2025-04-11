@@ -3,7 +3,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\AuthFormType;
-use App\Security\EmailVerifier;
+use App\Services\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -70,7 +70,6 @@ class AuthController extends AbstractController
 
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
-                    ->from(new Address('mailer@your-domain.com', 'Acme Mail Bot'))
                     ->to((string) $user->getEmail())
                     ->subject('Please Confirm your Email')
                     ->htmlTemplate('email/confirmation_email.html.twig')

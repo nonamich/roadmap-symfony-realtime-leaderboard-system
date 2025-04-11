@@ -6,6 +6,7 @@ use App\Entity\ReservedSeat;
 use App\Entity\Showtime;
 use App\Entity\ShowtimeSeat;
 use App\Entity\User;
+use App\Exception\SeatTakenException;
 use App\Exception\ShowtimePassedException;
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,9 +32,12 @@ class ReservationService
     {
         $this->isValidReservationOrThrow($showtime, $showtimeSeats);
 
-        $reservation = $this->createReservation($showtime, $showtimeSeats);
+        $this->entityManager->wrapInTransaction(function () use ($showtime, $showtimeSeats) {
+            $reservation = $this->createReservation($showtime, $showtimeSeats);
 
-        $this->sendEmailNotification($reservation);
+            $this->sendEmailNotification($reservation);
+        });
+
     }
     /**
      * @param ShowtimeSeat[] $showtimeSeats
@@ -88,7 +92,7 @@ class ReservationService
             return true;
         }
 
-        throw new ShowtimePassedException();
+        throw new SeatTakenException();
     }
 
     /**
@@ -101,12 +105,24 @@ class ReservationService
         });
     }
 
-    private function sendEmailNotification(Reservation $reservation) {
+    private function sendEmailNotification(Reservation $reservation)
+    {
+        $this->mailer->send($this->createReservationMessage($reservation));
+    }
+
+    private function createReservationMessage(Reservation $reservation)
+    {
         $templatedEmail = new TemplatedEmail();
+        $context = $templatedEmail->getContext();
+
+        $context['reservation'] = $reservation;
 
         $templatedEmail
+            ->context($context)
             ->to($reservation->getCustomer()->getEmail())
-            ->subject("Reservation {$reservation->getUuid()}")
-            ->htmlTemplate('email/reservation');
+            ->subject("Reservation {$reservation->getTicketCode()}")
+            ->htmlTemplate('email/reservation.html.twig');
+
+        return $templatedEmail;
     }
 }

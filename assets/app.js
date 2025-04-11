@@ -7,5 +7,3 @@ import "./bootstrap.js";
  */
 import "./styles/app.css";
 import "flowbite/dist/flowbite.turbo.js";
-
-console.log("This log comes from assets/app.js - welcome to AssetMapper! 🎉");

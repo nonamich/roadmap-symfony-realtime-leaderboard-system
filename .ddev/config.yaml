@@ -13,6 +13,9 @@ use_dns_when_possible: true
 composer_version: "2"
 web_environment: []
 corepack_enable: false
+post-start:
+    - exec: symfony console tailwind:build --watch
+    - exec: symfony console messenger:consume --all --no-debug
 
 # Key features of DDEV's config.yaml:
 

@@ -1,18 +1,18 @@
-<h1>Hi, {{user.email}}!</h1>
+<h1>Hi, {{reservation.customer.email}}!</h1>
 <p>Details</p>
 <dl>
   <dt>Reservation</dt>
-  <dd>#{{ reservation.uuid }}</dd>
+  <dd>#{{ reservation.ticketCode }}</dd>
 
   <dt>Movie</dt>
   <dd>{{ reservation.showtime.movie.title }}</dd>
 
   <dt>Start Date</dt>
-  <dd>{{ reservation.showtime.startDate }}</dd>
+  <dd>{{ reservation.showtime.startTime|date }}</dd>
 </dl>
 <h2>{{ reservation.reservedSeats|length }} Seats</h1>
 <ul>
-    {% for reservedSeat in reservedSeats %}
+    {% for reservedSeat in reservation.reservedSeats %}
         <li>
             {{ reservedSeat.showtimeSeat.seat.row }}:{{ reservedSeat.showtimeSeat.seat.col }}
         </li>
