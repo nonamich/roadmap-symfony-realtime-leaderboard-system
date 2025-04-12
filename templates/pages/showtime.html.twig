@@ -34,8 +34,11 @@
               </div>
             </div>
             <div class="mb-2">
-              <h3 class="font-semibold mb-1">Starts Through</h3><div class="flex gap-2 flex-wrap">
-                <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">{{ startsThrough|date('%d days %h hours %i mins') }}</span>
+              <h3 class="font-semibold mb-1">Starts Through</h3>
+              <div class="flex gap-2 flex-wrap">
+                <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">
+                  {{ showtime.startTime|format_datetime('medium', 'short', locale='en') }}
+                </span>
               </div>
             </div>
             <p class="text-gray-400 text-sm">{{ showtime.movie.description }}</p>

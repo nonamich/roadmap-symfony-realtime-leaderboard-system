@@ -13,9 +13,17 @@ use_dns_when_possible: true
 composer_version: "2"
 web_environment: []
 corepack_enable: false
-post-start:
-    - exec: symfony console tailwind:build --watch
-    - exec: symfony console messenger:consume --all --no-debug
+# post-start:
+#     - exec: symfony console tailwind:build --watch
+#     - exec: symfony console messenger:consume --all --no-debug
+web_extra_daemons:
+  - name: "tailwind"
+    directory: /var/www/html
+    command: "symfony console tailwind:build --watch"
+  - name: "messenger"
+    directory: /var/www/html
+    command: "symfony console messenger:consume --all --no-debug"
+webimage_extra_packages: [bash-completion]
 
 # Key features of DDEV's config.yaml:
 
