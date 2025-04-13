@@ -94,7 +94,8 @@ class Showtime
     }
 
     #[ORM\PrePersist]
-    public function updatedTimestamps() {
+    public function updatedTimestamps()
+    {
         $this->setCreatedOn(new \DateTimeImmutable('now'));
     }
 
@@ -178,5 +179,10 @@ class Showtime
         }
 
         return $this;
+    }
+
+    public function isUpcoming(): bool
+    {
+        return $this->startTime > new \DateTimeImmutable();
     }
 }

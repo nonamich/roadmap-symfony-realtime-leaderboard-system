@@ -13,7 +13,7 @@ final class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(ShowtimeRepository $showtimeRepository): Response
     {
-        $showtimes = $showtimeRepository->findAllRelations();
+        $showtimes = $showtimeRepository->findAllForHomepage();
 
         return $this->render('pages/home.html.twig', [
             'showtimes' => $showtimes,

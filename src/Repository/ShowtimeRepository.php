@@ -19,28 +19,16 @@ class ShowtimeRepository extends ServiceEntityRepository
     /**
      * @return array<int, Showtime>
      */
-    public function findAllRelations(): array
+    public function findAllForHomepage(): array
     {
         return $this->createQueryBuilder('s')
-            ->leftJoin('s.movie', 'm')
-            ->leftJoin('s.hall', 'h')
+            ->innerJoin('s.movie', 'm')
+            ->innerJoin('s.hall', 'h')
             ->addSelect('m')
             ->addSelect('h')
+            ->andWhere('s.startTime > CURRENT_TIMESTAMP()')
             ->getQuery()
             ->getResult();
-    }
-
-    public function findOneRelations(int $id): ?Showtime
-    {
-        return $this->createQueryBuilder('s')
-            ->leftJoin('s.movie', 'm')
-            ->leftJoin('s.hall', 'h')
-            ->addSelect('m')
-            ->addSelect('h')
-            ->andWhere('s.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery()
-            ->getOneOrNullResult();
     }
 
     public function findOneMovieAndSeats(int $id): ?Showtime

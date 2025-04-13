@@ -4,8 +4,7 @@ namespace App\Controller;
 
 use App\Form\ReservationFormType;
 use App\Repository\ShowtimeRepository;
-use App\Repository\ShowtimeSeatRepository;
-use App\Services\ReservationService;
+use App\Form\Handlers\ReservationFormHandler;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +17,7 @@ final class ShowtimeController extends AbstractController
 
     public function __construct(
         private ShowtimeRepository $showtimeRepository,
-        private ReservationService $reservationService
+        private ReservationFormHandler $reservationFormHandler
     ) {
     }
 
@@ -33,21 +32,15 @@ final class ShowtimeController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $form = $this->createForm(ReservationFormType::class, options: [
-            'showtime' => $showtime,
-        ]);
+        $form = $this->createForm(
+            ReservationFormType::class,
+            options: [
+                'showtime' => $showtime,
+            ]
+        );
+
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->denyAccessUnlessGranted('ROLE_USER');
-
-            /**
-             * @var ShowtimeSeat[]
-             */
-            $showtimeSeats = $form->get('showtimeSeats')->getData();
-
-            $this->reservationService->reserve($showtime, $showtimeSeats);
-        }
+        $this->reservationFormHandler->handleCreate($form, $showtime);
 
         return $this->render('pages/showtime.html.twig', [
             'showtime' => $showtime,
