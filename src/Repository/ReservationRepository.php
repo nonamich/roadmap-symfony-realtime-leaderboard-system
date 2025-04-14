@@ -44,4 +44,13 @@ class ReservationRepository extends ServiceEntityRepository
 
         return $reservation;
     }
+
+    public function findToRemind(): Reservation
+    {
+        return $this->createQueryBuilder('r')
+            ->innerJoin('r.showtime', 's')
+            ->andWhere('s.startTime > CURRENT_TIMESTAMP()')
+            ->getQuery()
+            ->getResult();
+    }
 }

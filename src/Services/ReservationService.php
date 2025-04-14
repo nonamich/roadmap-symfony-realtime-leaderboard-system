@@ -22,6 +22,7 @@ class ReservationService
         private EntityManagerInterface $entityManager,
         private ReservationRepository $reservationRepository,
         private MailerInterface $mailer,
+        private EmailReservationService $emailReservationService,
     ) {
     }
 
@@ -35,7 +36,9 @@ class ReservationService
         $this->entityManager->wrapInTransaction(function () use ($showtime, $showtimeSeats) {
             $reservation = $this->createReservation($showtime, $showtimeSeats);
 
-            $this->sendEmailNotification($reservation);
+            $this->mailer->send(
+                $this->emailReservationService->createOnReserve($reservation)
+            );
         });
 
     }
@@ -103,26 +106,5 @@ class ReservationService
         return array_all($showtimeSeats, function (ShowtimeSeat $showtimeSeat) {
             return !$showtimeSeat->getReservedSeat();
         });
-    }
-
-    private function sendEmailNotification(Reservation $reservation)
-    {
-        $this->mailer->send($this->createReservationMessage($reservation));
-    }
-
-    private function createReservationMessage(Reservation $reservation)
-    {
-        $templatedEmail = new TemplatedEmail();
-        $context = $templatedEmail->getContext();
-
-        $context['reservation'] = $reservation;
-
-        $templatedEmail
-            ->context($context)
-            ->to($reservation->getCustomer()->getEmail())
-            ->subject("Reservation {$reservation->getTicketCode()}")
-            ->htmlTemplate('email/reservation.html.twig');
-
-        return $templatedEmail;
     }
 }

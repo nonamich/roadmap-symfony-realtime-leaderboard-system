@@ -1,0 +1,20 @@
+<h1>Hi, {{reservation.customer.email}}!</h1>
+<p>Coning soon!</p>
+<dl>
+  <dt>Reservation</dt>
+  <dd>#{{ reservation.ticketCode }}</dd>
+
+  <dt>Movie</dt>
+  <dd>{{ reservation.showtime.movie.title }}</dd>
+
+  <dt>Start Date</dt>
+  <dd>{{ reservation.showtime.startTime|date }}</dd>
+</dl>
+<h2>{{ reservation.reservedSeats|length }} Seats</h1>
+<ul>
+    {% for reservedSeat in reservation.reservedSeats %}
+        <li>
+            {{ reservedSeat.showtimeSeat.seat.row }}:{{ reservedSeat.showtimeSeat.seat.col }}
+        </li>
+    {% endfor %}
+</ul>
