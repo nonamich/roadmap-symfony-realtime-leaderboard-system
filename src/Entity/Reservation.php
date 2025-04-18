@@ -117,4 +117,9 @@ class Reservation
             $this->ticketCode = Uuid::v7();
         }
     }
+
+    public function __toString(): string
+    {
+        return "#{$this->getId()} Reservation";
+    }
 }

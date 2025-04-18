@@ -23,7 +23,8 @@ class MovieFixtures extends Fixture
         $this->faker = $this->createFaker();
     }
 
-    private function createFaker() {
+    private function createFaker()
+    {
         $faker = FakerFactory::create();
 
         $faker->addProvider(new FakerPicsumImagesProvider($faker));
@@ -51,8 +52,8 @@ class MovieFixtures extends Fixture
         ];
 
         for ($i = 0; $i < 10; $i++) {
-            $genres = $faker->randomElements($allowedGenres, null);
-            $poster = $this->getPoster();
+            $genres = $faker->randomElements($allowedGenres, $faker->numberBetween(2, 4));
+            $poster = $this->downloadPoster();
             $movie = new Movie();
 
             $movie->setTitle($faker->sentence(3));
@@ -70,7 +71,8 @@ class MovieFixtures extends Fixture
         $manager->flush();
     }
 
-    private function getPoster() {
+    private function downloadPoster()
+    {
         $filesystem = new Filesystem();
         $externalPosterUrl = $this->faker->imageUrl(width: 550, height: 800);
         $response = $this->httpClient->request('GET', $externalPosterUrl);
@@ -82,9 +84,14 @@ class MovieFixtures extends Fixture
 
         $filesystem->dumpFile($tempPath, $response->getContent());
 
-        $uploadedFile = new UploadedFile($tempPath, basename($tempPath), mime_content_type($tempPath), null, true);
-        $fileName = $this->uploader->upload($uploadedFile);
+        $uploadedFile = new UploadedFile(
+            $tempPath,
+            basename($tempPath),
+            mime_content_type($tempPath),
+            null,
+            true
+        );
 
-        return $fileName;
+        return $this->uploader->upload($uploadedFile);
     }
 }

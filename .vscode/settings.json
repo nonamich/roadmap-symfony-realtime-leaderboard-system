@@ -1,6 +1,5 @@
 {
   "search.exclude": {
     "var": true
-  },
-  "php.version": "8.4"
+  }
 }

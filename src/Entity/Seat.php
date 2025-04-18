@@ -39,7 +39,7 @@ class Seat
 
     public function __toString(): string
     {
-        return "{$this->getCol()}:{$this->getRow()}";
+        return "{$this->getCol()}:{$this->getRow()} seat";
     }
 
     public function getId(): ?int

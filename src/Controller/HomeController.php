@@ -11,12 +11,12 @@ use Symfony\Component\Routing\Attribute\Route;
 final class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(ShowtimeRepository $showtimeRepository): Response
+    public function index(MovieRepository $movieRepository): Response
     {
-        $showtimes = $showtimeRepository->findAllForHomepage();
+        $movies = $movieRepository->findHomepage();
 
         return $this->render('pages/home.html.twig', [
-            'showtimes' => $showtimes,
+            'movies' => $movies,
         ]);
     }
 }

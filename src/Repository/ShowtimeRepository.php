@@ -16,21 +16,6 @@ class ShowtimeRepository extends ServiceEntityRepository
         parent::__construct($registry, Showtime::class);
     }
 
-    /**
-     * @return array<int, Showtime>
-     */
-    public function findAllForHomepage(): array
-    {
-        return $this->createQueryBuilder('s')
-            ->innerJoin('s.movie', 'm')
-            ->innerJoin('s.hall', 'h')
-            ->addSelect('m')
-            ->addSelect('h')
-            ->andWhere('s.startTime > CURRENT_TIMESTAMP()')
-            ->getQuery()
-            ->getResult();
-    }
-
     public function findOneMovieAndSeats(int $id): ?Showtime
     {
         return $this->createQueryBuilder('showtime')

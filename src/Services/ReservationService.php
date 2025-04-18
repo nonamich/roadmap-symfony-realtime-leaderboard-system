@@ -6,14 +6,13 @@ use App\Entity\ReservedSeat;
 use App\Entity\Showtime;
 use App\Entity\ShowtimeSeat;
 use App\Entity\User;
+use App\Exception\ReservationTakenException;
 use App\Exception\SeatTakenException;
 use App\Exception\ShowtimePassedException;
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
 
 class ReservationService
 {
@@ -31,7 +30,7 @@ class ReservationService
      */
     public function reserve(Showtime $showtime, array $showtimeSeats)
     {
-        $this->isValidReservationOrThrow($showtime, $showtimeSeats);
+        $this->isValidOrThrow($showtime, $showtimeSeats);
 
         $this->entityManager->wrapInTransaction(function () use ($showtime, $showtimeSeats) {
             $reservation = $this->createReservation($showtime, $showtimeSeats);
@@ -63,27 +62,22 @@ class ReservationService
         return $reservation;
     }
 
-    public function isShowtimeOnTimeOrThrow(Showtime $showtime)
+    public function isUpcomingOrThrow(Showtime $showtime)
     {
-        if ($this->isShowtimeOnTime($showtime)) {
+        if ($showtime->isUpcoming()) {
             return true;
         }
 
         throw new ShowtimePassedException();
     }
 
-    public function isShowtimeOnTime(Showtime $showtime)
-    {
-        return new \DateTime() < $showtime->getStartTime();
-    }
-
     /**
      * @param ShowtimeSeat[] $showtimeSeats
      */
-    public function isValidReservationOrThrow(Showtime $showtime, array $showtimeSeats)
+    public function isValidOrThrow(Showtime $showtime, array $showtimeSeats)
     {
         $this->isSeatsFreeOrThrow($showtimeSeats);
-        $this->isShowtimeOnTimeOrThrow($showtime);
+        $this->isUpcomingOrThrow($showtime);
     }
 
     /**
@@ -103,8 +97,43 @@ class ReservationService
      */
     public function isSeatsFree(array $showtimeSeats)
     {
-        return array_all($showtimeSeats, function (ShowtimeSeat $showtimeSeat) {
-            return !$showtimeSeat->getReservedSeat();
-        });
+        foreach ($showtimeSeats as $showtimeSeat) {
+            if ($showtimeSeat->getReservedSeat()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function isFree(Showtime $showtime)
+    {
+        $reservation = $this->reservationRepository->findOneBetweenByCurrentUser(
+            $showtime->getStartTime(),
+            $showtime->getEndTime()
+        );
+
+        if ($reservation) {
+            throw new ReservationTakenException();
+        }
+
+        return true;
+    }
+
+    public function isFreeOrThrow(Showtime $showtime)
+    {
+
+    }
+
+    /**
+     * @param Reservation[] $reservations
+     */
+    public function remind(array $reservations)
+    {
+        foreach ($reservations as $reservation) {
+            $mail = $this->emailReservationService->createRemind($reservation);
+
+            $this->mailer->send($mail);
+        }
     }
 }

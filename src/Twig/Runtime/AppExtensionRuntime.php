@@ -8,7 +8,6 @@ use Twig\Extension\RuntimeExtensionInterface;
 
 class AppExtensionRuntime implements RuntimeExtensionInterface
 {
-
     public function diffForHumans(\DateTimeInterface $date): string
     {
         return Carbon::instance($date)->diffForHumans([

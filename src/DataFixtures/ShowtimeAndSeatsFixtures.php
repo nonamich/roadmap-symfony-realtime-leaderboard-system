@@ -19,24 +19,15 @@ class ShowtimeAndSeatsFixtures extends Fixture
         $faker = Factory::create();
         $movies = $manager->getRepository(Movie::class)->findAll();
         $halls = $manager->getRepository(Hall::class)->findAll();
-        /**
-         * @var Showtime[]
-         */
-        $showtimes = [];
 
         foreach ($halls as $hall) {
-            $count_shows = $faker->numberBetween(1, 4);
+            $startTime = $faker->dateTimeBetween('+0 week', '+1 week');
 
-            for ($i = 0; $i < $count_shows; $i++) {
+            for ($index = 0; $index < 2; $index++) {
                 $showtime = new Showtime();
                 /** @var Movie $movie */
                 $movie = $faker->randomElement($movies);
-                $startTime = $faker->dateTimeBetween('+0 week', '+3 week');
-
-                $startTime->modify("+$i day");
-
                 $endTime = clone $startTime;
-
                 $endTime->modify("+{$movie->getDurationInMins()} minute");
 
                 $showtime->setStartTime($startTime);
@@ -46,21 +37,17 @@ class ShowtimeAndSeatsFixtures extends Fixture
 
                 $manager->persist($showtime);
 
-                $showtimes[] = $showtime;
-            }
-        }
+                $seats = $showtime->getHall()->getSeats();
 
-        foreach ($showtimes as $showtime) {
-            $seats = $showtime->getHall()->getSeats();
+                foreach ($seats as $seat) {
+                    $showtimeSeat = new ShowtimeSeat();
 
-            foreach ($seats as $seat) {
-                $showtimeSeat = new ShowtimeSeat();
+                    $showtimeSeat->setPriceInCents($faker->numberBetween(200, 1200));
+                    $showtimeSeat->setShowtime($showtime);
+                    $showtimeSeat->setSeat($seat);
 
-                $showtimeSeat->setPriceInCents($faker->numberBetween(200, 1200));
-                $showtimeSeat->setShowtime($showtime);
-                $showtimeSeat->setSeat($seat);
-
-                $manager->persist($showtimeSeat);
+                    $manager->persist($showtimeSeat);
+                }
             }
         }
 

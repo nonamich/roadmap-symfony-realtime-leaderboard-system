@@ -20,7 +20,7 @@ class Movie
     #[ORM\Column(unique: true)]
     private ?string $title = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'text')]
     private ?string $description = null;
 
     #[ORM\Column]
@@ -189,6 +189,14 @@ class Movie
         }
 
         return $this;
+    }
+
+    public function getDurationInterval(): \DateInterval
+    {
+        $hours = floor($this->getDurationInMins() / 60);
+        $mins = $this->getDurationInMins() % 60;
+
+        return new \DateInterval("PT{$hours}H{$mins}M");
     }
 
     public function __toString(): string

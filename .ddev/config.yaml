@@ -1,7 +1,7 @@
 name: movie-reservation-system
 type: symfony
 docroot: public
-php_version: "8.4"
+php_version: "8.3"
 webserver_type: nginx-fpm
 xdebug_enabled: true
 additional_hostnames: []
@@ -22,7 +22,7 @@ web_extra_daemons:
     command: "symfony console tailwind:build --watch"
   - name: "messenger"
     directory: /var/www/html
-    command: "symfony console messenger:consume --all --no-debug"
+    command: "symfony console messenger:consume --all -vv"
 webimage_extra_packages: [bash-completion]
 
 # Key features of DDEV's config.yaml:

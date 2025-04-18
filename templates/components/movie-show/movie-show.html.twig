@@ -1,5 +1,5 @@
 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-  {% for showtime in showtimes %}
-    {% include('components/movie-show/movie-show-item.html.twig') with { showtime } %}
+  {% for movie in movies %}
+    {% include('components/movie-show/movie-show-item.html.twig') with { movie } %}
   {% endfor %}
 </div>

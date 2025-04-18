@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+{% set duration = movie.getDurationInterval() %}
+
+{% block body %}
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row gap-6">
+      <div class="flex-shrink-0">
+        <img src="/uploads/{{ movie.poster }}" alt="Movie Poster" class="w-full md:w-96 h-auto rounded-lg shadow-lg" />
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold mb-2">{{ movie.title }}</h1>
+        <div class="flex gap-2 mb-3 flex-wrap">
+          {% for genre in movie.getGenres() %}
+            <span class="px-2 py-1 bg-blue-900 rounded text-xs">{{ genre }}</span>
+          {% endfor %}
+        </div>
+        <hr class="my-4 border-gray-200 dark:border-gray-800" />
+        <p class="text-gray-400 text-sm">{{ movie.description }}</p>
+        <hr class="my-4 border-gray-200 dark:border-gray-800" />
+        <div class="mb-2">
+          <h3 class="font-semibold mb-1">Release</h3><div class="flex gap-2 flex-wrap">
+            <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">{{ movie.releaseDate|date}}</span>
+          </div>
+        </div>
+        <div class="mb-2">
+          <h3 class="font-semibold mb-1">Duration</h3><div class="flex gap-2 flex-wrap">
+            <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">{{ duration|date('%h hours %i mins') }}</span>
+          </div>
+        </div>
+        <div class="mb-2">
+          <h3 class="font-semibold mb-1">Country</h3><div class="flex gap-2 flex-wrap">
+            <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">{{ movie.country|country_name }}</span>
+          </div>
+        </div>
+        <div class="mb-2">
+          <h3 class="font-semibold mb-1">Language</h3><div class="flex gap-2 flex-wrap">
+            <span class="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-sm">{{ movie.language|language_name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div data-orientation="horizontal" role="none" class="shrink-0 h-[1px] w-full my-6 bg-gray-700"></div>
+    <h2 class="text-2xl font-bold mb-2">Showtimes</h2>
+    <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+      {% for showtime in movie.showtimes %}
+        {% set sortedShowtimeSeatByPrice = showtime.getSortedShowtimeSeatByPrice() %}
+        <li class="pb-3 sm:pb-4">
+          <div class="flex items-center space-x-4 rtl:space-x-reverse">
+            <div class="flex-1 min-w-0">
+                <a href="{{ path('app_showtime', {id: showtime.id}) }}" class="text-sm font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                  Showtime: {{ showtime.startTime|diff_for_humans }}
+                </a>
+                <p class="text-sm text-gray-500 truncate dark:text-gray-400">
+                  Hall: {{ showtime.hall.name }}
+                </p>
+            </div>
+            <div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                ${{- sortedShowtimeSeatByPrice.first().priceInCents / 100 }} - ${{ sortedShowtimeSeatByPrice.last().priceInCents / 100 -}}
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+{% endblock %}

@@ -45,12 +45,36 @@ class ReservationRepository extends ServiceEntityRepository
         return $reservation;
     }
 
-    public function findToRemind(): Reservation
+    /**
+     * @return Reservation[]
+     */
+    public function findOneBetween(\DateTimeImmutable $start, \DateTimeImmutable $end): array
+    {
+        return $this->createFindOneBetween($start, $end)->getQuery()->getResult();
+    }
+
+    public function findOneBetweenByCurrentUser(\DateTimeImmutable $start, \DateTimeImmutable $end): ?Reservation
+    {
+        $user = $this->security->getUser();
+
+        if (!($user instanceof User)) {
+            throw new AccessDeniedHttpException();
+        }
+
+        return $this->createFindOneBetween($start, $end)
+            ->innerJoin('r.customer', 'c')
+            ->andWhere('r.customer.id = :customerId')
+            ->setParameter('customerId', $user)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    private function createFindOneBetween(\DateTimeImmutable $start, \DateTimeImmutable $end)
     {
         return $this->createQueryBuilder('r')
             ->innerJoin('r.showtime', 's')
-            ->andWhere('s.startTime > CURRENT_TIMESTAMP()')
-            ->getQuery()
-            ->getResult();
+            ->andWhere('s.startTime BETWEEN :start AND :end')
+            ->setParameter('end', $end)
+            ->setParameter('start', $start);
     }
 }

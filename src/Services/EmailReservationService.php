@@ -9,7 +9,7 @@ class EmailReservationService
 {
     public function createOnReserve(Reservation $reservation)
     {
-        return new TemplatedEmail()
+        return (new TemplatedEmail())
             ->context([
                 'reservation' => $reservation
             ])
@@ -19,7 +19,7 @@ class EmailReservationService
     }
 
     public function createRemind(Reservation $reservation) {
-        return new TemplatedEmail()
+        return (new TemplatedEmail())
             ->context([
                 'reservation' => $reservation
             ])

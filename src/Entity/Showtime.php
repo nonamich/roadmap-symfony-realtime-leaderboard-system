@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ShowtimeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -41,7 +42,7 @@ class Showtime
     private Collection $reservations;
 
     /**
-     * @var Collection<int, ShowtimeSeat>
+     * @var ArrayCollection<int, ShowtimeSeat>
      */
     #[ORM\OneToMany(targetEntity: ShowtimeSeat::class, mappedBy: 'showtime', orphanRemoval: true)]
     private Collection $showtimeSeats;
@@ -184,5 +185,16 @@ class Showtime
     public function isUpcoming(): bool
     {
         return $this->startTime > new \DateTimeImmutable();
+    }
+
+    public function getSortedShowtimeSeatByPrice() {
+        $criteria = Criteria::create()->orderBy(['priceInCents' => Criteria::ASC]);
+
+        return $this->showtimeSeats->matching($criteria);
+    }
+
+    public function __toString(): string
+    {
+        return "#{$this->getId()} showtime";
     }
 }
