@@ -15,7 +15,7 @@ class ReservedSeat
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'reservedSeats', cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
     private ?Reservation $reservation = null;
 
     #[ORM\OneToOne(inversedBy: 'reservedSeat', cascade: ['persist', 'remove'])]

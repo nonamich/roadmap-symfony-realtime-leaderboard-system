@@ -23,7 +23,6 @@ web_extra_daemons:
   - name: "messenger"
     directory: /var/www/html
     command: "symfony console messenger:consume --all -vv"
-webimage_extra_packages: [bash-completion]
 
 # Key features of DDEV's config.yaml:
 

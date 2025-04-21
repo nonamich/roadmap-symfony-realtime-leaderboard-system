@@ -5,6 +5,7 @@ namespace App\Form\Handlers;
 use App\Entity\Showtime;
 use App\Services\ReservationService;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use App\Entity\ShowtimeSeat;
@@ -32,9 +33,13 @@ class ReservationFormHandler
          */
         $showtimeSeats = $form->get('showtimeSeats')->getData();
 
-        $this->reservationService->reserve(
-            $showtime,
-            $showtimeSeats
-        );
+        try {
+            $this->reservationService->reserve(
+                $showtime,
+                $showtimeSeats
+            );
+        } catch (\Throwable $th) {
+            $form->addError(new FormError($th->getMessage()));
+        }
     }
 }

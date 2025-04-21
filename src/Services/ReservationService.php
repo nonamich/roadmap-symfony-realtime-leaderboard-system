@@ -6,7 +6,7 @@ use App\Entity\ReservedSeat;
 use App\Entity\Showtime;
 use App\Entity\ShowtimeSeat;
 use App\Entity\User;
-use App\Exception\ReservationTakenException;
+use App\Exception\ReservationOverlappedException;
 use App\Exception\SeatTakenException;
 use App\Exception\ShowtimePassedException;
 use App\Repository\ReservationRepository;
@@ -17,11 +17,11 @@ use Symfony\Component\Mailer\MailerInterface;
 class ReservationService
 {
     public function __construct(
-        private Security $security,
-        private EntityManagerInterface $entityManager,
-        private ReservationRepository $reservationRepository,
-        private MailerInterface $mailer,
         private EmailReservationService $emailReservationService,
+        private EntityManagerInterface $entityManager,
+        private MailerInterface $mailer,
+        private ReservationRepository $reservationRepository,
+        private Security $security,
     ) {
     }
 
@@ -31,7 +31,20 @@ class ReservationService
     public function reserve(Showtime $showtime, array $showtimeSeats)
     {
         $this->isValidOrThrow($showtime, $showtimeSeats);
+        $this->createReservationAndSendEmail($showtime, $showtimeSeats);
+    }
 
+    /**
+     * @param ShowtimeSeat[] $showtimeSeats
+     */
+    public function isValidOrThrow(Showtime $showtime, array $showtimeSeats)
+    {
+        $this->isUpcomingOrThrow($showtime);
+        $this->isOverlappedOrThrow($showtime);
+        $this->isSeatsFreeOrThrow($showtimeSeats);
+    }
+
+    private function createReservationAndSendEmail(Showtime $showtime, array $showtimeSeats) {
         $this->entityManager->wrapInTransaction(function () use ($showtime, $showtimeSeats) {
             $reservation = $this->createReservation($showtime, $showtimeSeats);
 
@@ -39,8 +52,8 @@ class ReservationService
                 $this->emailReservationService->createOnReserve($reservation)
             );
         });
-
     }
+
     /**
      * @param ShowtimeSeat[] $showtimeSeats
      */
@@ -64,20 +77,9 @@ class ReservationService
 
     public function isUpcomingOrThrow(Showtime $showtime)
     {
-        if ($showtime->isUpcoming()) {
-            return true;
+        if (!$showtime->isUpcoming()) {
+            throw new ShowtimePassedException();
         }
-
-        throw new ShowtimePassedException();
-    }
-
-    /**
-     * @param ShowtimeSeat[] $showtimeSeats
-     */
-    public function isValidOrThrow(Showtime $showtime, array $showtimeSeats)
-    {
-        $this->isSeatsFreeOrThrow($showtimeSeats);
-        $this->isUpcomingOrThrow($showtime);
     }
 
     /**
@@ -85,11 +87,9 @@ class ReservationService
      */
     public function isSeatsFreeOrThrow(array $showtimeSeats)
     {
-        if ($this->isSeatsFree($showtimeSeats)) {
-            return true;
+        if (!$this->isSeatsFree($showtimeSeats)) {
+            throw new SeatTakenException();
         }
-
-        throw new SeatTakenException();
     }
 
     /**
@@ -106,23 +106,18 @@ class ReservationService
         return true;
     }
 
-    public function isFree(Showtime $showtime)
+    public function isOverlapped(Showtime $showtime)
     {
-        $reservation = $this->reservationRepository->findOneBetweenByCurrentUser(
-            $showtime->getStartTime(),
-            $showtime->getEndTime()
-        );
+        $reservation = $this->reservationRepository->findOneOverlappingByCurrentUser($showtime);
 
-        if ($reservation) {
-            throw new ReservationTakenException();
-        }
-
-        return true;
+        return !$reservation;
     }
 
-    public function isFreeOrThrow(Showtime $showtime)
+    public function isOverlappedOrThrow(Showtime $showtime)
     {
-
+        if (!$this->isOverlapped($showtime)) {
+            throw new ReservationOverlappedException();
+        }
     }
 
     /**

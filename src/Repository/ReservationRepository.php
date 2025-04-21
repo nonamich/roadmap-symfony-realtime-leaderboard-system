@@ -48,12 +48,12 @@ class ReservationRepository extends ServiceEntityRepository
     /**
      * @return Reservation[]
      */
-    public function findOneBetween(\DateTimeImmutable $start, \DateTimeImmutable $end): array
+    public function findOneBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         return $this->createFindOneBetween($start, $end)->getQuery()->getResult();
     }
 
-    public function findOneBetweenByCurrentUser(\DateTimeImmutable $start, \DateTimeImmutable $end): ?Reservation
+    public function findOneOverlappingByCurrentUser(Showtime $showtime): mixed
     {
         $user = $this->security->getUser();
 
@@ -61,19 +61,25 @@ class ReservationRepository extends ServiceEntityRepository
             throw new AccessDeniedHttpException();
         }
 
-        return $this->createFindOneBetween($start, $end)
-            ->innerJoin('r.customer', 'c')
-            ->andWhere('r.customer.id = :customerId')
-            ->setParameter('customerId', $user)
+        return $this->createFindOneBetween(
+            $showtime->getStartTime(),
+            $showtime->getEndTime()
+        )
+            ->andWhere('r.customer = :user')
+            ->andWhere('r.showtime != :currentShowtime')
+            ->setParameter('user', $user->getId()->toBinary())
+            ->setParameter('currentShowtime', $showtime)
             ->getQuery()
+            ->setMaxResults(1)
             ->getOneOrNullResult();
     }
 
-    private function createFindOneBetween(\DateTimeImmutable $start, \DateTimeImmutable $end)
+    private function createFindOneBetween(\DateTimeInterface $start, \DateTimeInterface $end)
     {
         return $this->createQueryBuilder('r')
             ->innerJoin('r.showtime', 's')
-            ->andWhere('s.startTime BETWEEN :start AND :end')
+            ->andWhere('s.startTime < :end')
+            ->andWhere('s.endTime > :start')
             ->setParameter('end', $end)
             ->setParameter('start', $start);
     }
