@@ -12,7 +12,10 @@ use App\Exception\ShowtimePassedException;
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class ReservationService
 {
@@ -22,6 +25,7 @@ class ReservationService
         private MailerInterface $mailer,
         private ReservationRepository $reservationRepository,
         private Security $security,
+        private RedisAdapter $cache,
     ) {
     }
 
@@ -44,7 +48,8 @@ class ReservationService
         $this->isSeatsFreeOrThrow($showtimeSeats);
     }
 
-    private function createReservationAndSendEmail(Showtime $showtime, array $showtimeSeats) {
+    private function createReservationAndSendEmail(Showtime $showtime, array $showtimeSeats)
+    {
         $this->entityManager->wrapInTransaction(function () use ($showtime, $showtimeSeats) {
             $reservation = $this->createReservation($showtime, $showtimeSeats);
 
@@ -126,9 +131,22 @@ class ReservationService
     public function remind(array $reservations)
     {
         foreach ($reservations as $reservation) {
+            $cacheReminded = $this->cache->getItem(
+                "reservation.reminded.{$reservation->getId()}"
+            );
+
+            if ($cacheReminded->isHit()) {
+                continue;
+            }
+
             $mail = $this->emailReservationService->createRemind($reservation);
 
             $this->mailer->send($mail);
+
+            $cacheReminded->expiresAfter(\DateInterval::createFromDateString('2 hours'));
+            $cacheReminded->set(true);
+
+            $this->cache->save($cacheReminded);
         }
     }
 }
