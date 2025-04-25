@@ -32,9 +32,7 @@ class ReservationReminderCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $duration = $io->ask('Interval duration', '1 hour');
         $interval = \DateInterval::createFromDateString($duration);
-        $start = new \DateTimeImmutable();
-        $end = $start->add($interval);
-        $reservations = $this->reservationRepository->findOneBetween($start, $end);
+        $reservations = $this->reservationRepository->findManyUpcoming($interval);
 
         $io->info(
             sprintf('found %s reservations to remind', count($reservations))

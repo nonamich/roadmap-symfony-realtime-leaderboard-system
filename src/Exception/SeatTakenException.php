@@ -2,7 +2,7 @@
 
 namespace App\Exception;
 
-class SeatTakenException extends \RuntimeException
+class SeatTakenException extends BaseException
 {
     protected $message = 'Some seats already taken';
 }

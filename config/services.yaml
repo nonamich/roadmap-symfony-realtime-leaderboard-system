@@ -21,15 +21,16 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
-        arguments:
-            - '@Redis'
     Redis:
         class: \Redis
         calls:
             - connect:
                 - '%env(REDIS_HOST)%'
                 - '%env(int:REDIS_PORT)%'
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+        arguments:
+            - '@Redis'
+            - { 'prefix': 'session_', 'ttl': 86400 }
     Symfony\Component\Cache\Adapter\RedisAdapter:
         class: \Symfony\Component\Cache\Adapter\RedisAdapter
         arguments:

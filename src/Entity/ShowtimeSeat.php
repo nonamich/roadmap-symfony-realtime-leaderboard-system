@@ -24,7 +24,7 @@ class ShowtimeSeat
     #[ORM\JoinColumn(nullable: false)]
     private ?Showtime $showtime = null;
 
-    #[ORM\OneToOne(mappedBy: 'showtimeSeat', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'showtimeSeat')]
     private ?ReservedSeat $reservedSeat = null;
 
     public function getId(): ?int

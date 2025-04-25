@@ -1,0 +1,13 @@
+<h1>Hi, {{reservation.customer.email}}!</h1>
+<p>Details</p>
+<dl>
+  <dt>Reservation</dt>
+  <dd>#{{ reservation.ticketCode }}</dd>
+
+  <dt>Movie</dt>
+  <dd>{{ reservation.showtime.movie.title }}</dd>
+
+  <dt>Start Date</dt>
+  <dd>{{ reservation.showtime.startTime|date }}</dd>
+</dl>
+<h2>Your reservation was canceled</h1>

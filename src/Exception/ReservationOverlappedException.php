@@ -2,7 +2,7 @@
 
 namespace App\Exception;
 
-class ReservationOverlappedException extends \RuntimeException
+class ReservationOverlappedException extends BaseException
 {
     protected $message = 'Interval overlapping detected';
 }

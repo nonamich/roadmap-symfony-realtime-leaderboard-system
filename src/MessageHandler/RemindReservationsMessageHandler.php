@@ -10,7 +10,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class RemindReservationsMessageHandler
 {
-
     public function __construct(
         private ReservationService $service,
         private ReservationRepository $repository
@@ -19,9 +18,7 @@ final class RemindReservationsMessageHandler
 
     public function __invoke(RemindReservationsMessage $message): void
     {
-        $start = new \DateTimeImmutable();
-        $end = $start->add($message->dateinterval);
-        $reservations = $this->repository->findOneBetween($start, $end);
+        $reservations = $this->repository->findManyUpcoming($message->dateinterval);
 
         $this->service->remind($reservations);
     }

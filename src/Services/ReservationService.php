@@ -10,6 +10,7 @@ use App\Exception\ReservationOverlappedException;
 use App\Exception\SeatTakenException;
 use App\Exception\ShowtimePassedException;
 use App\Repository\ReservationRepository;
+use App\Repository\ReservedSeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
@@ -24,60 +25,98 @@ class ReservationService
         private EntityManagerInterface $entityManager,
         private MailerInterface $mailer,
         private ReservationRepository $reservationRepository,
+        private ReservedSeatRepository $reservedSeatRepository,
         private Security $security,
         private RedisAdapter $cache,
     ) {
     }
 
-    /**
-     * @param ShowtimeSeat[] $showtimeSeats
-     */
-    public function reserve(Showtime $showtime, array $showtimeSeats)
+    public function getReservationOrCreate(Showtime $showtime, User $user)
     {
-        $this->isValidOrThrow($showtime, $showtimeSeats);
-        $this->createReservationAndSendEmail($showtime, $showtimeSeats);
+        $reservation = $this->reservationRepository->findOneBy([
+            'customer' => $user,
+            'showtime' => $showtime
+        ]);
+
+        if (!$reservation) {
+            $reservation = new Reservation();
+
+            $reservation->setCustomer($user);
+            $reservation->setShowtime($showtime);
+        }
+
+        return $reservation;
     }
 
     /**
-     * @param ShowtimeSeat[] $showtimeSeats
+     * @param ShowtimeSeat[] $selectedShowtimeSeats
      */
-    public function isValidOrThrow(Showtime $showtime, array $showtimeSeats)
+    public function reserveOrCancel(Showtime $showtime, User $user, array $selectedShowtimeSeats)
     {
         $this->isUpcomingOrThrow($showtime);
-        $this->isOverlappedOrThrow($showtime);
-        $this->isSeatsFreeOrThrow($showtimeSeats);
-    }
 
-    private function createReservationAndSendEmail(Showtime $showtime, array $showtimeSeats)
-    {
-        $this->entityManager->wrapInTransaction(function () use ($showtime, $showtimeSeats) {
-            $reservation = $this->createReservation($showtime, $showtimeSeats);
+        $reservation = $this->getReservationOrCreate($showtime, $user);
+        $reservedSeats = $reservation->getReservedSeats();
+        $existingShowtimeSeats = $reservedSeats->map(
+            fn($reservedSeat) => $reservedSeat->getShowtimeSeat()
+        )->toArray();
 
-            $this->mailer->send(
-                $this->emailReservationService->createOnReserve($reservation)
-            );
+        $showtimeSeatToCancel = array_diff($existingShowtimeSeats, $selectedShowtimeSeats);
+        $showtimeSeatToReserve = array_diff($selectedShowtimeSeats, $existingShowtimeSeats);
+
+        $this->entityManager->wrapInTransaction(function () use ($reservation, $showtimeSeatToCancel, $showtimeSeatToReserve) {
+            foreach ($showtimeSeatToCancel as $showtimeSeat) {
+                $reservedSeat = $showtimeSeat->getReservedSeat();
+
+                $this->entityManager->remove($reservedSeat);
+                $reservation->removeReservedSeat($reservedSeat);
+            }
+
+            $this->reserve($reservation, $showtimeSeatToReserve);
+
+            $reservedSeatCount = $reservation->getReservedSeats()->count();
+
+            if ($reservedSeatCount) {
+                $this->mailer->send(
+                    $this->emailReservationService->createOnReserve($reservation)
+                );
+
+                $this->entityManager->persist($reservation);
+            } else {
+                $this->mailer->send(
+                    $this->emailReservationService->createOnCancel($reservation)
+                );
+
+                $this->entityManager->remove($reservation);
+            }
+
+            $this->entityManager->flush();
         });
     }
 
     /**
-     * @param ShowtimeSeat[] $showtimeSeats
+     * @param ShowtimeSeat[] $desiresShowtimeSeats
      */
-    public function createReservation(Showtime $showtime, array $showtimeSeats)
+    public function reserve(Reservation $reservation, array $desiresShowtimeSeats)
     {
-        $reservation = $this->reservationRepository->findOneByCurrentUserOrCreate($showtime);
+        $this->isValidToReserveOrThrow($reservation->getShowtime(), $desiresShowtimeSeats);
 
-        foreach ($showtimeSeats as $showtimeSeat) {
+        foreach ($desiresShowtimeSeats as $showtimeSeat) {
             $reservedSeat = new ReservedSeat();
 
             $reservedSeat->setShowtimeSeat($showtimeSeat);
             $reservation->addReservedSeat($reservedSeat);
             $this->entityManager->persist($reservedSeat);
         }
+    }
 
-        $this->entityManager->persist($reservation);
-        $this->entityManager->flush();
-
-        return $reservation;
+    /**
+     * @param ShowtimeSeat[] $desiresShowtimeSeats
+     */
+    public function isValidToReserveOrThrow(Showtime $showtime, array $desiresShowtimeSeats)
+    {
+        $this->isOverlappedOrThrow($showtime);
+        $this->isSeatsFreeOrThrow($desiresShowtimeSeats);
     }
 
     public function isUpcomingOrThrow(Showtime $showtime)
@@ -88,21 +127,21 @@ class ReservationService
     }
 
     /**
-     * @param ShowtimeSeat[] $showtimeSeats
+     * @param ShowtimeSeat[] $desiresShowtimeSeats
      */
-    public function isSeatsFreeOrThrow(array $showtimeSeats)
+    public function isSeatsFreeOrThrow(array $desiresShowtimeSeats)
     {
-        if (!$this->isSeatsFree($showtimeSeats)) {
+        if (!$this->isSeatsFree($desiresShowtimeSeats)) {
             throw new SeatTakenException();
         }
     }
 
     /**
-     * @param ShowtimeSeat[] $showtimeSeats
+     * @param ShowtimeSeat[] $desiresShowtimeSeats
      */
-    public function isSeatsFree(array $showtimeSeats)
+    public function isSeatsFree(array $desiresShowtimeSeats)
     {
-        foreach ($showtimeSeats as $showtimeSeat) {
+        foreach ($desiresShowtimeSeats as $showtimeSeat) {
             if ($showtimeSeat->getReservedSeat()) {
                 return false;
             }

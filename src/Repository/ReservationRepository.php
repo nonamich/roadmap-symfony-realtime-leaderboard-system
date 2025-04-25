@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Reservation;
 use App\Entity\Showtime;
 use App\Entity\User;
+use DateTime;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -22,35 +24,22 @@ class ReservationRepository extends ServiceEntityRepository
         parent::__construct($registry, Reservation::class);
     }
 
-    public function findOneByCurrentUserOrCreate(Showtime $showtime): Reservation
-    {
-        $user = $this->security->getUser();
-
-        if (!($user instanceof User)) {
-            throw new AccessDeniedHttpException();
-        }
-
-        $reservation = $this->findOneBy([
-            'customer' => $user,
-            'showtime' => $showtime,
-        ]);
-
-        if (!$reservation) {
-            $reservation = new Reservation();
-
-            $reservation->setCustomer($user);
-            $reservation->setShowtime($showtime);
-        }
-
-        return $reservation;
-    }
-
     /**
      * @return Reservation[]
      */
-    public function findOneBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
+    public function findManyUpcoming(\DateInterval $interval): array
     {
-        return $this->createFindOneBetween($start, $end)->getQuery()->getResult();
+        $now = new DateTimeImmutable();
+        $feature = $now->add($interval);
+
+        return $this->createQueryBuilder('r')
+            ->innerJoin('r.showtime', 's')
+            ->andWhere('s.startTime BETWEEN :now AND :feature')
+            ->setParameter('now', $now)
+            ->setParameter('now', $now)
+            ->setParameter('feature', $feature)
+            ->getQuery()
+            ->getResult();
     }
 
     public function findOneOverlappingByCurrentUser(Showtime $showtime): mixed
@@ -61,26 +50,24 @@ class ReservationRepository extends ServiceEntityRepository
             throw new AccessDeniedHttpException();
         }
 
-        return $this->createFindOneBetween(
-            $showtime->getStartTime(),
-            $showtime->getEndTime()
-        )
+        return $this->createQueryBuilder('r')
+            ->innerJoin('r.showtime', 's')
+            ->andWhere('s.startTime < :end')
+            ->andWhere('s.endTime > :start')
             ->andWhere('r.customer = :user')
             ->andWhere('r.showtime != :currentShowtime')
             ->setParameter('user', $user->getId()->toBinary())
             ->setParameter('currentShowtime', $showtime)
+            ->setParameter('end', $showtime->getStartTime())
+            ->setParameter('start', $showtime->getEndTime())
             ->getQuery()
             ->setMaxResults(1)
             ->getOneOrNullResult();
     }
 
-    private function createFindOneBetween(\DateTimeInterface $start, \DateTimeInterface $end)
+    /** {@inheritDoc} */
+    public function findOneBy(array $criteria, ?array $orderBy = null): ?Reservation
     {
-        return $this->createQueryBuilder('r')
-            ->innerJoin('r.showtime', 's')
-            ->andWhere('s.startTime < :end')
-            ->andWhere('s.endTime > :start')
-            ->setParameter('end', $end)
-            ->setParameter('start', $start);
+        return parent::findOneBy($criteria, $orderBy);
     }
 }

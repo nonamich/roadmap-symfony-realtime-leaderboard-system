@@ -87,11 +87,11 @@ class Reservation
         return $this;
     }
 
-    public function removeReservedSeat(ReservedSeat $reservationSeat): static
+    public function removeReservedSeat(ReservedSeat $reservedSeat): static
     {
-        if ($this->reservedSeats->removeElement($reservationSeat)) {
-            if ($reservationSeat->getReservation() === $this) {
-                $reservationSeat->setReservation(null);
+        if ($this->reservedSeats->removeElement($reservedSeat)) {
+            if ($reservedSeat->getReservation() === $this) {
+                $reservedSeat->setReservation(null);
             }
         }
 

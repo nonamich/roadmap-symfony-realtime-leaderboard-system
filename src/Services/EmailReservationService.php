@@ -14,8 +14,18 @@ class EmailReservationService
                 'reservation' => $reservation
             ])
             ->to($reservation->getCustomer()->getEmail())
-            ->subject("Reservation {$reservation->getTicketCode()}")
+            ->subject("Reservation #{$reservation->getTicketCode()}")
             ->htmlTemplate('email/reservation.html.twig');
+    }
+    public function createOnCancel(Reservation $reservation)
+    {
+        return (new TemplatedEmail())
+            ->context([
+                'reservation' => $reservation
+            ])
+            ->to($reservation->getCustomer()->getEmail())
+            ->subject("Reservation cancellation #{$reservation->getTicketCode()}")
+            ->htmlTemplate('email/reservation-cancellation.html.twig');
     }
 
     public function createRemind(Reservation $reservation) {

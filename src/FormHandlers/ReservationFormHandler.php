@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Form\Handlers;
+namespace App\FormHandlers;
 
 use App\Entity\Showtime;
+use App\Entity\User;
+use App\Exception\BaseException;
 use App\Services\ReservationService;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\FormError;
@@ -18,28 +20,25 @@ class ReservationFormHandler
     ) {
     }
 
-    public function handleCreate(FormInterface $form, Showtime $showtime)
+    public function handler(FormInterface $form, Showtime $showtime, User $user)
     {
         if (!$form->isSubmitted() || !$form->isValid()) {
             return;
         }
 
-        if (!$this->authChecker->isGranted('ROLE_USER')) {
-            throw new AccessDeniedException();
-        }
-
         /**
          * @var ShowtimeSeat[]
          */
-        $showtimeSeats = $form->get('showtimeSeats')->getData();
+        $seats = $form->get('seats')->getData();
 
         try {
-            $this->reservationService->reserve(
+            $this->reservationService->reserveOrCancel(
                 $showtime,
-                $showtimeSeats
+                $user,
+                $seats
             );
-        } catch (\Throwable $th) {
-            $form->addError(new FormError($th->getMessage()));
+        } catch (BaseException $exception) {
+            $form->addError(new FormError($exception->getMessage()));
         }
     }
 }

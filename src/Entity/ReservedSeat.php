@@ -18,7 +18,7 @@ class ReservedSeat
     #[ORM\JoinColumn(nullable: false, onDelete: 'cascade')]
     private ?Reservation $reservation = null;
 
-    #[ORM\OneToOne(inversedBy: 'reservedSeat', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'reservedSeat')]
     #[ORM\JoinColumn(nullable: false)]
     private ?ShowtimeSeat $showtimeSeat = null;
 
@@ -39,7 +39,7 @@ class ReservedSeat
         return $this;
     }
 
-    public function getShowtimeSeat(): ?ShowtimeSeat
+    public function getShowtimeSeat(): ShowtimeSeat
     {
         return $this->showtimeSeat;
     }
