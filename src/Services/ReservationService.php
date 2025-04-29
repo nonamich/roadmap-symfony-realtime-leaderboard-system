@@ -6,6 +6,7 @@ use App\Entity\ReservedSeat;
 use App\Entity\Showtime;
 use App\Entity\ShowtimeSeat;
 use App\Entity\User;
+use App\Enums\ReservationStatus;
 use App\Exception\ReservationOverlappedException;
 use App\Exception\SeatTakenException;
 use App\Exception\ShowtimePassedException;
@@ -23,7 +24,6 @@ class ReservationService
     public function __construct(
         private EmailReservationService $emailReservationService,
         private EntityManagerInterface $entityManager,
-        private MailerInterface $mailer,
         private ReservationRepository $reservationRepository,
         private ReservedSeatRepository $reservedSeatRepository,
         private Security $security,
@@ -31,11 +31,12 @@ class ReservationService
     ) {
     }
 
-    public function getReservationOrCreate(Showtime $showtime, User $user)
+    public function getReservationOrCreate(Showtime $showtime, User $user): Reservation
     {
         $reservation = $this->reservationRepository->findOneBy([
             'customer' => $user,
-            'showtime' => $showtime
+            'showtime' => $showtime,
+            'status' => ReservationStatus::Ok
         ]);
 
         if (!$reservation) {
@@ -43,6 +44,7 @@ class ReservationService
 
             $reservation->setCustomer($user);
             $reservation->setShowtime($showtime);
+            $reservation->setStatus(ReservationStatus::Ok);
         }
 
         return $reservation;
@@ -64,40 +66,25 @@ class ReservationService
         $showtimeSeatToCancel = array_diff($existingShowtimeSeats, $selectedShowtimeSeats);
         $showtimeSeatToReserve = array_diff($selectedShowtimeSeats, $existingShowtimeSeats);
 
-        $this->entityManager->wrapInTransaction(function () use ($reservation, $showtimeSeatToCancel, $showtimeSeatToReserve) {
-            foreach ($showtimeSeatToCancel as $showtimeSeat) {
-                $reservedSeat = $showtimeSeat->getReservedSeat();
+        if ($showtimeSeatToReserve) {
+            $this->seatsReservation($reservation, $showtimeSeatToReserve);
+        }
 
-                $this->entityManager->remove($reservedSeat);
-                $reservation->removeReservedSeat($reservedSeat);
-            }
+        if ($showtimeSeatToCancel) {
+            $this->seatsCancellation($reservation, $showtimeSeatToCancel);
+        }
 
-            $this->reserve($reservation, $showtimeSeatToReserve);
+        $this->persistOrCancelReservation($reservation);
 
-            $reservedSeatCount = $reservation->getReservedSeats()->count();
+        $this->entityManager->flush();
 
-            if ($reservedSeatCount) {
-                $this->mailer->send(
-                    $this->emailReservationService->createOnReserve($reservation)
-                );
-
-                $this->entityManager->persist($reservation);
-            } else {
-                $this->mailer->send(
-                    $this->emailReservationService->createOnCancel($reservation)
-                );
-
-                $this->entityManager->remove($reservation);
-            }
-
-            $this->entityManager->flush();
-        });
+        return $reservation;
     }
 
     /**
      * @param ShowtimeSeat[] $desiresShowtimeSeats
      */
-    public function reserve(Reservation $reservation, array $desiresShowtimeSeats)
+    public function seatsReservation(Reservation $reservation, array $desiresShowtimeSeats)
     {
         $this->isValidToReserveOrThrow($reservation->getShowtime(), $desiresShowtimeSeats);
 
@@ -108,6 +95,33 @@ class ReservationService
             $reservation->addReservedSeat($reservedSeat);
             $this->entityManager->persist($reservedSeat);
         }
+    }
+
+    /**
+     * @param ShowtimeSeat[] $showtimeSeatToCancel
+     */
+    public function seatsCancellation(Reservation $reservation, array $showtimeSeatToCancel)
+    {
+        foreach ($showtimeSeatToCancel as $showtimeSeat) {
+            $reservedSeat = $showtimeSeat->getReservedSeat();
+
+            $this->entityManager->remove($reservedSeat);
+            $reservation->removeReservedSeat($reservedSeat);
+        }
+    }
+
+    public function persistOrCancelReservation(Reservation $reservation)
+    {
+        $isCancellation = $reservation->getReservedSeats()->isEmpty();
+
+        if ($isCancellation) {
+            $reservation->setStatus(ReservationStatus::Canceled);
+            $this->emailReservationService->notifyCancellation($reservation);
+        } else {
+            $this->emailReservationService->notifyReservation($reservation);
+        }
+
+        $this->entityManager->persist($reservation);
     }
 
     /**
@@ -178,9 +192,7 @@ class ReservationService
                 continue;
             }
 
-            $mail = $this->emailReservationService->createRemind($reservation);
-
-            $this->mailer->send($mail);
+            $this->emailReservationService->notifyRemind($reservation);
 
             $cacheReminded->expiresAfter(\DateInterval::createFromDateString('2 hours'));
             $cacheReminded->set(true);

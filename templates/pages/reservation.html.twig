@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  {{ reservation.showtime.movie.title }}
+{% endblock %}
+
+{% block body %}
+  <h1 class="text-4xl font-extrabold dark:text-white mb-2">Hi, {{reservation.customer.email}}!</h1>
+  <dl class="max-w-md text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
+      <div class="flex flex-col py-3">
+          <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Reservation</dt>
+          <dd class="text-lg font-semibold">#{{ reservation.ticketCode }}</dd>
+      </div>
+      <div class="flex flex-col py-3">
+          <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Status</dt>
+          <dd class="text-lg font-semibold">{{ reservation.status.name }}</dd>
+      </div>
+      <div class="flex flex-col py-3">
+          <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Movie</dt>
+          <dd class="text-lg font-semibold">{{ reservation.showtime.movie.title }}</dd>
+      </div>
+      <div class="flex flex-col py-3">
+          <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Starts</dt>
+          <dd class="text-lg font-semibold">{{ reservation.showtime.startTime|date }}</dd>
+      </div>
+      <div class="flex flex-col py-3">
+          <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">
+            {{ reservation.reservedSeats|length }} Seats
+          </dt>
+          <dd class="text-lg font-semibold">
+            <ul class="max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+                {% for reservedSeat in reservation.reservedSeats %}
+                    <li>
+                        {{ reservedSeat.showtimeSeat.seat.row }}:{{ reservedSeat.showtimeSeat.seat.col }}
+                    </li>
+                {% endfor %}
+            </ul>
+          </dd>
+      </div>
+  </dl>
+{% endblock %}

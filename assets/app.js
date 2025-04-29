@@ -6,4 +6,4 @@ import "./bootstrap.js";
  * which should already be in your base.html.twig.
  */
 import "./styles/app.css";
-import "flowbite/dist/flowbite.turbo.js";
+// import "flowbite/dist/flowbite.turbo.js";

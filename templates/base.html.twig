@@ -11,8 +11,10 @@
     </head>
     <body class="bg-gray-50 dark:bg-gray-900 antialiased">
         {{ include('components/header/header.html.twig') }}
-        <main class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-            {% block body %}{% endblock %}
+        <main class="flex flex-wrap justify-center items-center mx-auto max-w-screen-xl">
+            <div>
+                {% block body %}{% endblock %}
+            </div>
         </main>
         {{ include('components/footer.html.twig') }}
     </body>

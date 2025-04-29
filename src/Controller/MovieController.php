@@ -20,8 +20,14 @@ final class MovieController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_movie')]
-    public function show(#[MapEntity(expr: 'repository.findOneAndShowtimes(id)')] Movie $movie): Response
+    public function show(int $id): Response
     {
+        $movie = $this->repository->findOneAndShowtimes($id);
+
+        if (!$movie) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('pages/movie.html.twig', [
             'movie' => $movie,
         ]);

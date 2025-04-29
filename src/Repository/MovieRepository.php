@@ -15,7 +15,7 @@ class MovieRepository extends ServiceEntityRepository
         parent::__construct($registry, Movie::class);
     }
 
-    public function findOneAndShowtimes(int $id)
+    public function findOneAndShowtimes(int $id): ?Movie
     {
         return $this->createQueryBuilder('m')
             ->innerJoin('m.showtimes', 's')

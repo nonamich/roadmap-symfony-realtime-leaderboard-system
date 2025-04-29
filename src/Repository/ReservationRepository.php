@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Reservation;
 use App\Entity\Showtime;
 use App\Entity\User;
+use App\Enums\ReservationStatus;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -33,8 +34,10 @@ class ReservationRepository extends ServiceEntityRepository
         $feature = $now->add($interval);
 
         return $this->createQueryBuilder('r')
+            ->andWhere('r.status = :status')
             ->innerJoin('r.showtime', 's')
             ->andWhere('s.startTime BETWEEN :now AND :feature')
+            ->setParameter('status', ReservationStatus::Ok)
             ->setParameter('now', $now)
             ->setParameter('now', $now)
             ->setParameter('feature', $feature)
@@ -56,10 +59,12 @@ class ReservationRepository extends ServiceEntityRepository
             ->andWhere('s.endTime > :start')
             ->andWhere('r.customer = :user')
             ->andWhere('r.showtime != :currentShowtime')
+            ->andWhere('r.status = :status')
+            ->setParameter('status', ReservationStatus::Ok)
             ->setParameter('user', $user->getId()->toBinary())
             ->setParameter('currentShowtime', $showtime)
-            ->setParameter('end', $showtime->getStartTime())
-            ->setParameter('start', $showtime->getEndTime())
+            ->setParameter('start', $showtime->getStartTime())
+            ->setParameter('end', $showtime->getEndTime())
             ->getQuery()
             ->setMaxResults(1)
             ->getOneOrNullResult();

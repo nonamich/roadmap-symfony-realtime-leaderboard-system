@@ -21,6 +21,12 @@
                                 item: 'Admin Dashboard'
                             } %}
                         {% endif %}
+                        {% if is_granted('ROLE_USER') %}
+                            {% include 'components/header/dropdown-item.html.twig' with {
+                                url: path('app_reservations'),
+                                item: 'Reservations'
+                            } %}
+                        {% endif %}
                     </ul>
                     <div class="py-1">
                         <a href="{{ path('app_logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</a>

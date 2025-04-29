@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enums\ReservationStatus;
 use App\Repository\ReservationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -34,6 +35,9 @@ class Reservation
 
     #[ORM\Column(type: 'uuid')]
     private ?Uuid $ticketCode = null;
+
+    #[ORM\Column(enumType: ReservationStatus::class)]
+    private ?ReservationStatus $status = null;
 
     public function __construct()
     {
@@ -121,5 +125,17 @@ class Reservation
     public function __toString(): string
     {
         return "#{$this->getId()} Reservation";
+    }
+
+    public function getStatus(): ?ReservationStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(ReservationStatus $status): static
+    {
+        $this->status = $status;
+
+        return $this;
     }
 }
